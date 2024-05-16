@@ -53,10 +53,6 @@ public class Board {
             // This land is done, off to the next one
             landsToGenerate--;
         }
-
-        for (Land land : lands) {
-            System.out.println("(" + land.coords.x + ", " + land.coords.y + ")");
-        }
     }
 
 

@@ -42,9 +42,10 @@ public class Game {
                 // Maybe here do more logic to choose AI type?
                 this.players.add(new CompAggressive(currentPlayer+1, 8));
                 currentPlayer++;
+            } else {    
+                // Input not allowed, loop again
+                System.out.println("Sorry, that answer could not be understood. Try again");
             }
-            // Input not allowed, loop again
-            System.out.println("Sorry, that answer could not be understood. Try again");
         }
         // Make the board now
         this.board = new Board(players);
