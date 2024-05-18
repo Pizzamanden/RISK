@@ -18,10 +18,14 @@ public class Human extends Player{
 
     /*
      *  Implement the move() method required of a player
+     *  This method is optimized to give feedback to any human player on what they can do, and why what they are trying to do is not allowed
+     *  Making this method print-heavy will spare the game itself
      */
     @Override
     public Move move(Board board){
         while(true){
+            System.out.println("\n");
+            Game.printGivenGame(board);
             // Start by displaying a list of lands the player can interact with
             System.out.println("\nYou can type the name of one of these friendly lands to manage the soldiers there:");
             ArrayList<Land> actionableLands = board.getListOfActionableLands(this);
@@ -83,6 +87,15 @@ public class Human extends Player{
             if(targetLand.getController() != this){
                 System.out.println("The enemy have " + targetLand.getTroopCount() + " troops.");
                 System.out.println("You can attack with at most " + Math.min(fromLand.getTroopCount()-1, 3) + " troops.");
+                for (int i = 0; i < 3; i++) {
+                    ArrayList<Outcome> outcomes = ProbTable.getOutcomes(i+1, Math.min(targetLand.getTroopCount(), 2));
+                    for (Outcome outcome : outcomes) {
+                        System.out.print("Attacking with " + (i+1) + " troops has a ");
+                        outcome.printProbAsPercentage();
+                        System.out.print(" chance of losing " + outcome.attackersDying + " of your troops, and killing " + outcome.defendersDying + " of theirs.\n");
+                    }
+                    System.out.println("");
+                }
             } else {
                 System.out.println("You have " + targetLand.getTroopCount() + " troops at the destination.");
                 System.out.println("You can move at most " + (fromLand.getTroopCount()-1) + " troops.");

@@ -20,7 +20,15 @@ public class Game {
      */
     public Game(){
         this.players = new ArrayList<>();
+        ProbTable.getOutcomes(1, 1);
         newGame();
+        // ArrayList<ArrayList<Integer>> table = ProbTable.makeDiceSet(3);
+        // for (ArrayList<Integer> rollSet : table) {
+        //     for (int roll : rollSet) {
+        //         System.out.print(roll + ", ");
+        //     }
+        //     System.out.print("\n");
+        // }
     }
 
     /*
@@ -36,7 +44,7 @@ public class Game {
             System.out.println("Should player " + (currentPlayer+1) + " be a human? Y/N");
             String setPlayer = scanner.nextLine().toLowerCase();
             if(setPlayer.equals("y")){ // This player should be human
-                this.players.add(new SmartHuman(currentPlayer+1));
+                this.players.add(new Human(currentPlayer+1));
                 currentPlayer++;
             } else if(setPlayer.equals("n")) { // This player should be AI
                 // Maybe here do more logic to choose AI type?
@@ -75,13 +83,8 @@ public class Game {
             System.out.println("\nReinforcement phase begins.");
             while(reinforcementsRemaining > 0){ // While the player has reinforcements remaining, trap them here
                 Reinforcement reinforcement = player.reinforce(board, reinforcementsRemaining); // The player tries to do a reinforcement
-                // Check if the chosen amount to reinforce here is withing the remaining amount
-                if(reinforcement.count > reinforcementsRemaining){
-                    System.out.println("The specified amount exceeds the remaining amount.");
-                    System.out.println("Please choose an amount at or below " + reinforcementsRemaining + ".");
-                    continue; // Reset the reinforce loop
-                }
-                if(board.canReinforce(player, reinforcement)){
+                // Use the method for checking if this reinforcement is legal
+                if(board.canReinforce(player, reinforcement, reinforcementsRemaining)){
                     // Success!
                     reinforcementsRemaining = reinforcementsRemaining - reinforcement.count;
                     reinforcement.land.changeTroopCount(reinforcement.count);

@@ -8,7 +8,6 @@ public class Land {
     
     public int landID;
     private ArrayList<Land> borderingLand;
-    private int bonusArea; // Unused
     private Player controller;
     private int troopCount;
     private String name;

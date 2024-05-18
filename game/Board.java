@@ -18,41 +18,72 @@ public class Board {
         this.lands = new ArrayList<>();
         this.playerCount = players.size();
         this.centersInUse = new ArrayList<>();
-        int landsToGenerate = 14;
+        
+        generateLand(new Coordinate(2, 13), 1-1, players.get(0), "a");
+        generateLand(new Coordinate(5, 13), 2-1, players.get(0), "b");
+        generateLand(new Coordinate(8, 15), 3-1, players.get(0), "c");
+        generateLand(new Coordinate(11, 14), 4-1, players.get(0), "d");
+        generateLand(new Coordinate(8, 12), 5-1, players.get(0), "e");
+        generateLand(new Coordinate(0, 10), 6-1, players.get(0), "f");
+        generateLand(new Coordinate(3, 10), 7-1, players.get(0), "g");
+        generateLand(new Coordinate(0, 7), 8-1, players.get(0), "h");
 
-        // First land is always a manual-added (0,0)
-        Coordinate centerCoordinate = new Coordinate(0,0);
-        lands.add(new Land("0", 14-landsToGenerate, (landsToGenerate-7 > 0 ? players.get(0) : players.get(1)), centerCoordinate));
-        centersInUse.add(centerCoordinate);
-        landsToGenerate--;
+        generateLand(new Coordinate(3, 7), 9-1, players.get(1), "i");
+        generateLand(new Coordinate(3, 4), 10-1, players.get(1), "j");
+        generateLand(new Coordinate(6, 9), 11-1, players.get(1), "k");
+        generateLand(new Coordinate(9, 9), 12-1, players.get(1), "l");
+        generateLand(new Coordinate(12, 9), 13-1, players.get(1), "m");
+        generateLand(new Coordinate(6, 6), 14-1, players.get(1), "n");
+        generateLand(new Coordinate(10, 6), 15-1, players.get(1), "o");
+        generateLand(new Coordinate(8, 3), 16-1, players.get(1), "p");
 
         
-        Random rand = new Random();
-        // Now the adding begins
-        while (landsToGenerate > 0) {
-            boolean successGenerate = false;
-            while(!successGenerate){
-                // Pick a random land already made
-                Land randomLand = lands.get(rand.nextInt(lands.size()));
-                // Use the method for generating available candidates for centers
-                ArrayList<Coordinate> candidates = generatePossibleNeighboursFromCoord(randomLand.coords);
-                if(candidates.size() > 0){
-                    // Pick one at random
-                    Coordinate randomPicked = candidates.get(rand.nextInt(candidates.size()));
-                    // Add it to the list of coordinates we have already used
-                    centersInUse.add(randomPicked);
-                    // Also generate the actual land, giving it these coordiantes
-                    Land newlyGenerated = new Land(14-landsToGenerate + "", 14-landsToGenerate, (landsToGenerate-7 > 0 ? players.get(0) : players.get(1)), randomPicked);
-                    // Generate its neighbours while we have it
-                    setNeighboursOfLand(newlyGenerated);
-                    // Add this one after generating its neighbours (important order, do not change, see method setNeighboursOfLand)
-                    lands.add(newlyGenerated);
-                    successGenerate = true; // We found and chose a candidate
-                } // If there are no candidates, we could not generate any candidates from this coordinate.
-            }
-            // This land is done, off to the next one
-            landsToGenerate--;
-        }
+
+        // Commented out block of random land generation
+        // int landsToGenerate = 16;
+        // // First land is always a manual-added (0,0)
+        // Coordinate centerCoordinate = new Coordinate(0,0);
+        // lands.add(new Land("0", 14-landsToGenerate, (landsToGenerate-7 > 0 ? players.get(0) : players.get(1)), centerCoordinate));
+        // centersInUse.add(centerCoordinate);
+        // landsToGenerate--;
+        // Random rand = new Random();
+        // // Now the adding begins
+        // while (landsToGenerate > 0) {
+        //     boolean successGenerate = false;
+        //     while(!successGenerate){
+        //         // Pick a random land already made
+        //         Land randomLand = lands.get(rand.nextInt(lands.size()));
+        //         // Use the method for generating available candidates for centers
+        //         ArrayList<Coordinate> candidates = generatePossibleNeighboursFromCoord(randomLand.coords);
+        //         if(candidates.size() > 0){
+        //             // Pick one at random
+        //             Coordinate randomPicked = candidates.get(rand.nextInt(candidates.size()));
+        //             // Add it to the list of coordinates we have already used
+        //             centersInUse.add(randomPicked);
+        //             // Also generate the actual land, giving it these coordiantes
+        //             Land newlyGenerated = new Land(14-landsToGenerate + "", 14-landsToGenerate, (landsToGenerate-7 > 0 ? players.get(0) : players.get(1)), randomPicked);
+        //             // Generate its neighbours while we have it
+        //             setNeighboursOfLand(newlyGenerated);
+        //             // Add this one after generating its neighbours (important order, do not change, see method setNeighboursOfLand)
+        //             lands.add(newlyGenerated);
+        //             successGenerate = true; // We found and chose a candidate
+        //         } // If there are no candidates, we could not generate any candidates from this coordinate.
+        //     }
+        //     // This land is done, off to the next one
+        //     landsToGenerate--;
+        // }
+    }
+
+
+    private void generateLand(Coordinate coords, int id, Player startController, String name){
+        //Add it to the list of coordinates we have already used
+        centersInUse.add(coords);
+        // Also generate the actual land, giving it these coordiantes
+        Land newlyGenerated = new Land(name, id, startController, coords);
+        // Generate its neighbours while we have it
+        setNeighboursOfLand(newlyGenerated);
+        // Add this one after generating its neighbours (important order, do not change, see method setNeighboursOfLand)
+        lands.add(newlyGenerated);
     }
 
 
@@ -124,14 +155,14 @@ public class Board {
             boolean bordering = false;
             // Just like when checking for collisions, we now check for the very specific collison of lying exactly in the ring 3 away from the center.
             // But only in one coordinate. In the other, it must be closer than 3. Otherwise, it is only touching corners or less.
-            if(!(possibleNeighbour.coords.x == land.coords.x-3 || possibleNeighbour.coords.x == land.coords.x+3)){
+            if((possibleNeighbour.coords.x == land.coords.x-3 || possibleNeighbour.coords.x == land.coords.x+3)){
                 // Using the exact same technique as in isCoordinateAvailable(), we now want this specific collision
                 // This checks that it does not lie further away than 2 in the y-coordinate in either positive or negative
                 if(!(possibleNeighbour.coords.y < land.coords.y-2 || possibleNeighbour.coords.y > land.coords.y+2)){
                     bordering = true;
                 }
             }
-            if(!(possibleNeighbour.coords.y == land.coords.y-3 || possibleNeighbour.coords.y == land.coords.y+3)){
+            if((possibleNeighbour.coords.y == land.coords.y-3 || possibleNeighbour.coords.y == land.coords.y+3)){
                 // Using the exact same technique as in isCoordinateAvailable(), we now want this specific collision
                 // This checks that it does not lie further away than 2 in the x-coordinate in either positive or negative
                 if(!(possibleNeighbour.coords.x < land.coords.x-2 || possibleNeighbour.coords.x > land.coords.x+2)){
@@ -204,9 +235,9 @@ public class Board {
      *  Returns false if the reinforcement is not legal
      *  TODO decide if the logic for all reinforcement checking should occur here, or if error-messages should be tailored, and thus be in the game logic
      */
-    public boolean canReinforce(Player player, Reinforcement reinforcement){
+    public boolean canReinforce(Player player, Reinforcement reinforcement, int remainingReinforcements){
         // An amount above 0 must be chosen
-        if(reinforcement.count < 1){
+        if(reinforcement.count < 1 && reinforcement.count <= remainingReinforcements){
             return false;
         }
         // The current player must control the land they attempt to reinforce
@@ -343,32 +374,34 @@ public ArrayList<Land> getListOfActionableLands(Player player){
                     // If the actual coordinate is -3, with the offset of 4, that means the lowest number was -3.
                     // That gives a distance of 0. Since we are using the box, we need to subtract one, as we added 1 when we made it, to have room for the actual squares.
                     char toSet = ' ';
-                    if(i == 0 && j == 0){
-                        // Middle
-                        toSet = (char) (land.landID+97);
-                    } else if(i == 0){
-                        // Right and left middle
-                        toSet = '|';
-                    } else if(j == 0){
-                        // Bottom and top middle
-                        toSet = '-';
-                    } else if(i == -1 && j == -1){
-                        // Top left
-                        // toSet = '\\';
-                        toSet = '+';
-                    } else if(i == 1 && j == -1){
-                        // Bottom left
-                        // toSet = '/';
-                        toSet = '+';
-                    } else if(i == -1 && j == 1){
-                        // Top right
-                        // toSet = '/';
-                        toSet = '+';
-                    } else if(i == 1 && j == 1){
-                        // Bottom right
-                        // toSet = '\\';
-                        toSet = '+';
-                    }
+                    toSet = (char) (land.landID+97);
+                    // Logic below for setting each one of the 9 tiles a land owns
+                    // if(i == 0 && j == 0){
+                    //     // Middle
+                    //     toSet = (char) (land.landID+97);
+                    // } else if(i == 0){
+                    //     // Right and left middle
+                    //     toSet = '|';
+                    // } else if(j == 0){
+                    //     // Bottom and top middle
+                    //     toSet = '-';
+                    // } else if(i == -1 && j == -1){
+                    //     // Top left
+                    //     // toSet = '\\';
+                    //     toSet = '+';
+                    // } else if(i == 1 && j == -1){
+                    //     // Bottom left
+                    //     // toSet = '/';
+                    //     toSet = '+';
+                    // } else if(i == -1 && j == 1){
+                    //     // Top right
+                    //     // toSet = '/';
+                    //     toSet = '+';
+                    // } else if(i == 1 && j == 1){
+                    //     // Bottom right
+                    //     // toSet = '\\';
+                    //     toSet = '+';
+                    // }
                     box[drawBoxHeight-(land.coords.y+offsetY+i)-1][land.coords.x+offsetX+j] = toSet;
                 } 
             }
