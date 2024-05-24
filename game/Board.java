@@ -10,14 +10,16 @@ public class Board {
     private int playerTurn = 0; // The only call needed is, at the start of a turn to get the next player, and save that value, using the method for it
     private int playerCount;
     private ArrayList<Coordinate> centersInUse;
+    private final int landCountForReinforcement; // the number of land required to gain an additional reinforcement
 
     /*
      *  Constructor for a new board
      */
-    public Board(ArrayList<Player> players){
+    public Board(ArrayList<Player> players, int landCountForReinforcement){
         this.lands = new ArrayList<>();
         this.playerCount = players.size();
         this.centersInUse = new ArrayList<>();
+        this.landCountForReinforcement = landCountForReinforcement;
         
         generateLand(new Coordinate(2, 13), 1-1, players.get(0), "a");
         generateLand(new Coordinate(5, 13), 2-1, players.get(0), "b");
@@ -193,12 +195,12 @@ public class Board {
 
 
     public boolean isMoveLegal(Move move){
-        // Does the specified move actually move troops?
-        if(move.count < 1){
+        // Does the specified move use a legal number of troops?
+        if(move.count < 1 || 3 < move.count){
             return false;
         }
-        // Is there enough troops in the from-land to move any from it?
-        if(move.from.getTroopCount() < 2){
+        // Is there enough troops in the from-land to move any from it? 1 must remain on the land
+        if(move.from.getTroopCount()-1 < move.count){
             return false;
         }
         // Does the current player control the source of the movement?
@@ -236,8 +238,8 @@ public class Board {
      *  TODO decide if the logic for all reinforcement checking should occur here, or if error-messages should be tailored, and thus be in the game logic
      */
     public boolean canReinforce(Player player, Reinforcement reinforcement, int remainingReinforcements){
-        // An amount above 0 must be chosen
-        if(reinforcement.count < 1 && reinforcement.count <= remainingReinforcements){
+        // Reinforcement amount must be larger than 0 and less than or equal to remaining reinforcements
+        if(reinforcement.count <= 0 || reinforcement.count > remainingReinforcements){
             return false;
         }
         // The current player must control the land they attempt to reinforce
@@ -249,7 +251,7 @@ public class Board {
      */
     public int countReinforcements(Player player){
         int count = 3;
-        Math.max(count, getControlledLandsCount(player)/3);
+        Math.max(count, getControlledLandsCount(player)/landCountForReinforcement);
 
         return count;
     }
@@ -301,13 +303,7 @@ public ArrayList<Land> getListOfActionableLands(Player player){
      *  Counts the amount of land a player controls
      */
     public int getControlledLandsCount(Player player){
-        int count = 0;
-        for (Land land : this.lands) {
-            if(land.getController() == player){
-                count++;
-            }
-        }
-        return count;
+        return getControlledLands(player).size();
     }
 
 

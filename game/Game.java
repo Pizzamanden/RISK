@@ -56,7 +56,7 @@ public class Game {
             }
         }
         // Make the board now
-        this.board = new Board(players);
+        this.board = new Board(players, 2);
     }
 
     /*
@@ -99,7 +99,7 @@ public class Game {
             System.out.println("\nAction phase begins.");
             Move attemptMove = player.move(board);
             while(attemptMove != null){ // Null signifies that the turn is done.
-                // Check that the move attempted is lega
+                // Check that the move attempted is legal
                 if(board.isMoveLegal(attemptMove)){
                     // Now identify the type of movement
                     if(attemptMove.to.getController() == attemptMove.player){
@@ -180,7 +180,7 @@ public class Game {
         attack.from.changeTroopCount(-(fights-attacksWon));
         attack.to.changeTroopCount(-attacksWon);
         // Display the result
-        System.out.println("\nThe attacker lost " + (fights-attacksWon) + " troops, and the defender lost " + attacksWon + " troops.");
+        System.out.println("\nThe attacker lost " + (fights-attacksWon) + " troops and the defender lost " + attacksWon + " troops.");
         if(attack.to.getTroopCount() == 0){
             System.out.println("\nThe attacker has taken the land of " + attack.to.getName() + "!");
             attack.from.changeTroopCount(-1);
