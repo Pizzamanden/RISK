@@ -10,10 +10,10 @@ public class Board {
     private int playerTurn = 0; // The only call needed is, at the start of a turn to get the next player, and save that value, using the method for it
     private int playerCount;
     private ArrayList<Coordinate> centersInUse;
-    private final int landCountForReinforcement; // the number of land required to gain an additional reinforcement
+    private int landCountForReinforcement; // the number of land required to gain an additional reinforcement
 
     /*
-     *  Constructor for a new board
+     *  Constructor for a new, premade, board
      */
     public Board(ArrayList<Player> players, int landCountForReinforcement){
         this.lands = new ArrayList<>();
@@ -74,6 +74,14 @@ public class Board {
         //     // This land is done, off to the next one
         //     landsToGenerate--;
         // }
+    }
+
+    /*
+     * Constructor for an empty board - used to copy the board
+     */
+    private Board(){
+        lands = new ArrayList<>();
+        centersInUse = new ArrayList<>();
     }
 
 
@@ -407,6 +415,44 @@ public ArrayList<Land> getListOfActionableLands(Player player){
             output = output + new String(cs) + "\n";
         }
         return output;
+    }
+
+    /**
+     * Creates and returns a deep copy of this Board.
+     * @return a deep copy of this Board
+     */
+    public Board copy(){
+        Board copy = new Board();
+
+        // Copies all lands
+        for(Coordinate c : this.centersInUse){  // copies the centers in use
+            copy.centersInUse.add(new Coordinate(c.x, c.y));
+        }
+
+        for(Land l : this.lands){   // copies the lands
+            Land landCopy = new Land(
+                l.getName(),
+                l.landID,
+                l.getController(),  // might want to change this to a copy of the controller, but I am not sure how, and I don't actually think it matters, since the controller does not do naything else than act as an owner, so using the players from the real board should not change anything, since we never change anything for the controller anyways. We only change, in the Land, how controls the Land.
+                new Coordinate(l.coords.x, l.coords.y)
+            );
+            copy.lands.add(landCopy);
+        }
+
+        for(Land l : this.lands){   // copies all neighbours of all lands
+            Land lCopy = copy.getLandByName(l.getName());    // copy's version of Land l
+            for(Land n : l.getNeighbours()){    // adds the neighbours
+                Land nCopy = copy.getLandByName(n.getName());    // copy's version of Land n
+                lCopy.addNeighbour(nCopy);  // adds copy's n as neighbour for copy's l
+            }
+        }
+
+        // copies meta information
+        copy.playerTurn = this.playerTurn;
+        copy.playerCount = this.playerCount;
+        copy.landCountForReinforcement = this.landCountForReinforcement;
+
+        return copy;
     }
 
 }
