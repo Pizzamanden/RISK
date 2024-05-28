@@ -4,9 +4,9 @@ package players;
  *  They can also be overridden later, if need be.
  */
 
-import containers.Move;
-import containers.Reinforcement;
-import game.Board;
+import containers.*;
+import game.*;
+import java.util.*;
 
 public abstract class AI extends Player{
 
@@ -33,9 +33,37 @@ public abstract class AI extends Player{
     public abstract int evaluateBoard(Board board);
 
     /*
-     *  Example actual AI method
+     *  Returns a list of all possible moves that can be done on this board
+     *  These moves are dependant on each connected zone of control
+     *  For each of these zone, there is a pool of troops available, which can:
+     *  - Attack an enemy land which neighbours that zone
+     *  - Be placed on the border of land in the zone, which borders an enemy land
      */
-    public int moveOptions(){
-        return 8;
+    public ArrayList<Move> generateMoveList(Board board){
+        ArrayList<Move> moveList = new ArrayList<>();
+        // Start by getting all connected zones
+        ArrayList<ArrayList<Land>> connectedZones = board.getConnectedLandZones(this);
+        // For each of these zone, we have a pool of movable troops
+        for (ArrayList<Land> zone : connectedZones) {
+            // Since the zones contain all land, we can use it to feed getConnectedMovableTroopCount, but then we would have to remove the land that calls it.
+            // Instead, since we essentially just add the originating land once too many, we can just subtract it once to restore correctness.
+            int zoneTroopCount = zone.get(0).getConnectedMoveableTroopCount(zone) - (zone.get(0).getTroopCount() - 1);
+            // With this troop count in a zone, we should now find the border.
+            ArrayList<Land> borderLands = new ArrayList<>();
+            for (Land land : zone) {
+                if(land.hasEnemyNeighbour(this)){
+                    borderLands.add(land);
+                }
+            }
+            // For each of these bordering lands, we can divide up the troops in this zone in all permutations
+            
+
+            // We are really only interested making one attack on an enemy land per zone
+
+
+        }
+
+
+        return moveList;
     }
 }
