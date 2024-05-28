@@ -308,6 +308,33 @@ public ArrayList<Land> getListOfActionableLands(Player player){
     }
 
     /*
+     *  
+     */
+    public ArrayList<ArrayList<Land>> getConnectedLandZones(Player player){
+        ArrayList<Land> ownedLands = this.getControlledLands(player);
+        ArrayList<ArrayList<Land>> connectedZones = new ArrayList<>(); // Make the list of zones. A zone is a list, so this is a list of lists
+        for (Land land : ownedLands) {
+            // For each owned land, check if it is part of a zone we know of, or if it is part of a new zone
+            if(connectedZones.size() == 0){
+                // If there are no found zones yet, make the first
+                ArrayList<Land> newZone = land.getAllConnectedLand();
+                newZone.add(land); // getAllConnectedLand removes the original caller, so add it again
+                connectedZones.add(newZone);
+            } else {
+                for (ArrayList<Land> zone : connectedZones) { // Now check if this current land is part of any current zone
+                    if(!zone.contains(land)){
+                        // New zone found, add it
+                        ArrayList<Land> newZone = land.getAllConnectedLand();
+                        newZone.add(land); // getAllConnectedLand removes the original caller, so add it again
+                        connectedZones.add(newZone);
+                    }
+                }
+            }
+        }
+        return connectedZones;
+    }
+
+    /*
      *  Counts the amount of land a player controls
      */
     public int getControlledLandsCount(Player player){
@@ -417,6 +444,42 @@ public ArrayList<Land> getListOfActionableLands(Player player){
         return output;
     }
 
+    /*
+     *  Method for evaluating equality in boards
+     *  The factors to consider are:
+     *  - Is it the same player's turn?
+     *  - Are the same lands owned by the same players?
+     *  - Do these same lands have the same troop count?
+     *  Warning: The time of calling this method can actually play a role. This does not track remaining reinforcements, which could be a problem
+     */
+    @Override
+    public boolean equals(Object other){
+        if(other == null)
+			return false;
+		if(other == this)
+			return true;
+		if(!(other instanceof Board))
+			return false;
+		Board otherBoard = (Board) other;
+        if(otherBoard.lands.size() != this.lands.size())
+            return false;
+        if(otherBoard.playerTurn != this.playerTurn)
+            return false;
+        boolean landsEqual = true;
+        int thisLandIndex = 0;
+        while(landsEqual && thisLandIndex < this.lands.size()){ // While we still have lands to check, and we have not found a mismatch, keep going
+            // The goal here is to check that each land has a mirror in the other board's list of lands
+            Land cLand = lands.get(thisLandIndex);
+            if(!otherBoard.lands.contains(cLand)){
+                // Contains uses the equals function for lands.
+                // If we enter here, the otherBoard did not contain this land.
+                landsEqual = false;
+            }
+        }
+        return landsEqual;
+    }
+
+
     /**
      * Creates and returns a deep copy of this Board.
      * @return a deep copy of this Board
@@ -429,16 +492,18 @@ public ArrayList<Land> getListOfActionableLands(Player player){
             copy.centersInUse.add(new Coordinate(c.x, c.y));
         }
 
+        // Since we cannot just copy one land, making Land.copy is bad. Instead we copy the lands here
         for(Land l : this.lands){   // copies the lands
             Land landCopy = new Land(
                 l.getName(),
                 l.landID,
-                l.getController(),  // might want to change this to a copy of the controller, but I am not sure how, and I don't actually think it matters, since the controller does not do naything else than act as an owner, so using the players from the real board should not change anything, since we never change anything for the controller anyways. We only change, in the Land, how controls the Land.
+                l.getController(),  // Yes, shallow copy the players.
                 new Coordinate(l.coords.x, l.coords.y)
             );
             copy.lands.add(landCopy);
         }
 
+        // Setup neighbours for all the newly copied lands
         for(Land l : this.lands){   // copies all neighbours of all lands
             Land lCopy = copy.getLandByName(l.getName());    // copy's version of Land l
             for(Land n : l.getNeighbours()){    // adds the neighbours

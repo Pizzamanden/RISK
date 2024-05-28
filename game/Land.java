@@ -122,6 +122,22 @@ public class Land {
     }
 
     /*
+     *  Method for calculating all troops in a connected zone that can be moved or be used to attack
+     *  Supply parameter with null if there is no available instance of connected lands created, the method makes its own
+     *  Otherwise speed it up by providing one
+     */
+    public int getConnectedMoveableTroopCount(ArrayList<Land> connectedLands){
+        int count = this.troopCount-1;
+        if(connectedLands == null){
+            connectedLands = this.getAllConnectedLand();
+        }
+        for (Land land : connectedLands) {
+            count = count + (land.getTroopCount() - 1);
+        }
+        return count;
+    }
+
+    /*
      *  Returns a list of neighbours
      *  The list itself is not the same reference, but the neighbours are the references used.
      */
@@ -143,6 +159,18 @@ public class Land {
      */
     public Player getController(){
         return this.controller;
+    }
+
+
+    public boolean hasEnemyNeighbour(Player player){
+        boolean found = false;
+        Iterator<Land> neighbourListIterable = borderingLand.iterator(); // Make iterator
+        while(!found && neighbourListIterable.hasNext()){
+            if (neighbourListIterable.next().controller != player){
+                found = true;
+            }
+        }
+        return found;
     }
 
     /*
@@ -171,5 +199,38 @@ public class Land {
 
     public String getName(){
         return this.name;
+    }
+
+
+    /*
+     *  Land equality consists of:
+     *  - Controller
+     *  - Troop count
+     *  - Name
+     *  - ID
+     *  - Size of neighbour list
+     *  Crucially, it does not consist of checking these neighbours. Only the Board containing the lands can know for sure
+     */
+    @Override
+    public boolean equals(Object other){
+        if(other == null)
+			return false;
+		if(other == this)
+			return true;
+		if(!(other instanceof Land))
+			return false;
+		Land otherLand = (Land) other;
+        if(otherLand.controller != this.controller) // This is references matched, which is correct behavior for checking player equality
+            return false;
+        if(otherLand.troopCount != this.troopCount)
+            return false;
+        if(!otherLand.name.equals(this.name))
+            return false;
+        if(otherLand.landID != this.landID)
+            return false;
+        if(otherLand.borderingLand.size() != this.borderingLand.size())
+            return false;
+
+        return true;
     }
 }
