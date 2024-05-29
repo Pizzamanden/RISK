@@ -143,6 +143,25 @@ public class Land {
         return list;
     }
 
+    /*
+     *  Returns a list of neighbours
+     *  The list itself is not the same reference, but the neighbours are the references used.
+     *  Works exactly as a copy of the list of neighbours. The lands are still their same references, its just this list not being the same list as the one in the class
+     */
+    public ArrayList<Land> getNeighbours(Player player, Boolean ownedByThisPlayer){
+        ArrayList<Land> list = new ArrayList<>();
+        for (Land land : borderingLand) {
+            // This if-statement is strange. It has two conditions of true and two of false.
+            // It is true if the player is indeed the same, and the boolean variable is true, OR if it is not owned by the same player, and the boolean is false.
+            // If it is owned by the specified player, but the variable is false, the statement is false
+            // So the statement compares the equivalence of the booleans of the players being the same and the parameter-boolean
+            if((land.controller == player) == ownedByThisPlayer){
+                list.add(land);
+            }
+        }
+        return list;
+    }
+
     /**
      * Returns a list of all neighbours that are not owned
      * by the owner of this land.

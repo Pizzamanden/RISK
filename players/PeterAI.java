@@ -80,12 +80,24 @@ public class PeterAI extends AI{
      *  This method sets the current turn plan
      */
     private void planTurn(int reinforceRemaining){
+        ArrayList<Board> 
         if(reinforceRemaining > 0){
             // We are in reinforcement phase
+            // We need to figure out which zone we want to place how many troops in
+            // This should be done by looking at all the options of placements, and seeing what we can get done with it.
         } else {
-            // We are in movement phase. This is indicative of a plan failing
+            // We are in movement phase. This is indicative of a plan failing.
+            // Use the current board to figure out what should be done
         }
         // Do AI magik
+    }
+
+    /*
+     *  By going over all enemy bordering land, give each a score.
+     *  Highest score is equivalent to being easiest target
+     */
+    private Land findTarget(Board board){
+
     }
     
 }

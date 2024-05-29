@@ -60,7 +60,10 @@ public abstract class AI extends Player{
             }
             // For each of these bordering lands, we can divide up the troops in this zone in all permutations
             for (ArrayList<Land> arrayList : connectedZones) {
-                
+                // For each of these lands, we could move between 1 and all available troops in there
+                for (int i = 1; i <= zoneTroopCount; i++) {
+                    
+                }
             }
             // This constitues leaving troops on the border, or performing all possible attacks on all enemy lands which border this zone
             // We could also attack, and even do a mix of attacking and leaving troops on the border
