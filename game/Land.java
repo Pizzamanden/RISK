@@ -31,14 +31,7 @@ public class Land {
      *  Uses a simple loop with a short-circuit to check
      */
     public boolean hasNeighboringLand(Land neighbour){
-        boolean found = false;
-        Iterator<Land> neighbourListIterable = borderingLand.iterator(); // Make iterator
-        while(!found && neighbourListIterable.hasNext()){
-            if (neighbour == neighbourListIterable.next()){ // This comparison is warrented, as comparing references is the absolute way of knowing equality
-                found = true;
-            }
-        }
-        return found;
+        return borderingLand.contains(neighbour);
     }
 
     /*
@@ -162,11 +155,11 @@ public class Land {
     }
 
 
-    public boolean hasEnemyNeighbour(Player player){
+    public boolean hasEnemyNeighbour(){
         boolean found = false;
         Iterator<Land> neighbourListIterable = borderingLand.iterator(); // Make iterator
         while(!found && neighbourListIterable.hasNext()){
-            if (neighbourListIterable.next().controller != player){
+            if (neighbourListIterable.next().controller != this.controller){
                 found = true;
             }
         }

@@ -51,14 +51,16 @@ public abstract class AI extends Player{
             // With this troop count in a zone, we should now find the border.
             ArrayList<Land> borderLands = new ArrayList<>();
             for (Land land : zone) {
-                if(land.hasEnemyNeighbour(this)){
+                if(land.hasEnemyNeighbour()){
                     borderLands.add(land);
                 }
             }
             // For each of these bordering lands, we can divide up the troops in this zone in all permutations
             
-
+            // This constitues leaving troops on the border
+            // We could also attack, and even do a mix of attacking and leaving troops on the border
             // We are really only interested making one attack on an enemy land per zone
+            // We really just need to generate a move for each possible attack, for each possible enemy land target
 
 
         }

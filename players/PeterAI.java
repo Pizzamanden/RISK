@@ -34,11 +34,17 @@ public class PeterAI extends AI{
         }
         if(!(nextAction.currentBoard.equals(board))){
             // Our last move made has fucked up the timeline, replan!
-            planTurn();
+            planTurn(0);
+            if(cTurnPlan.isPlanEmpty()){ // Check if we just want to end our turn now
+                return move;
+            }
+            // This action should be good, since we just made it
+            nextAction = cTurnPlan.nextAction();
+            
         }
-
-
-        return move;
+        // Either we are still on plan, or we just replanned.
+        // In any case, we can move ahead with the nextAction
+        return (Move) nextAction.action;
     }
  
     /*
@@ -59,15 +65,26 @@ public class PeterAI extends AI{
     public Reinforcement reinforce(Board board, int reinforceRemaining) {
         // If this is our first reinforcement, the TurnPlan should be empty
         if(cTurnPlan.isPlanEmpty()){
-            planTurn();
+            planTurn(reinforceRemaining);
         }
-
+        // Execute reinforcements from plan
+        Action nextAction = cTurnPlan.nextAction();
+        if(!(nextAction.action instanceof Reinforcement)){
+            // Something went wrong!
+        }
+        // Just return the action as the reinforcement that it is
+        return (Reinforcement) nextAction.action;
     }
 
     /*
      *  This method sets the current turn plan
      */
-    private void planTurn(){
+    private void planTurn(int reinforceRemaining){
+        if(reinforceRemaining > 0){
+            // We are in reinforcement phase
+        } else {
+            // We are in movement phase. This is indicative of a plan failing
+        }
         // Do AI magik
     }
     
