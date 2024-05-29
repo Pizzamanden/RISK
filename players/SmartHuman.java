@@ -50,6 +50,7 @@ public class SmartHuman extends Player{
                 System.out.println("To view all available commands, type \"help\" (without the brackets)");
                 continue;
             }
+
             // Now parse the result to integers
             int troopCount = -1;
             try {
@@ -59,7 +60,7 @@ public class SmartHuman extends Player{
                 System.out.println("To view all available commands, type \"help\" (without the brackets)");
                 continue;
             }
-            
+
             // Check if the amount of troops specified is greater than 3. If it is, reduce it, but tell the player.
             if(troopCount > 3){
                 System.out.println("You can attack with at most 3 troops at once. You can always make multiple attacks in the same turn.");
@@ -94,6 +95,7 @@ public class SmartHuman extends Player{
                 System.out.println("You are trying to attack " + tLand.getName() + " from " + fLand.getName() + " with " + troopCount + " troops.");
                 System.out.println("The enemy has " + tLand.getTroopCount() + " troops.");
             }
+            
             System.out.println("Type \"Y\" to confirm this order. Type anything else to cancel it.");
             String confirmation = scanner.nextLine().toLowerCase();
             if(confirmation.equals("y") || confirmation.equals("yes")){

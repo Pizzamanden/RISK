@@ -41,7 +41,7 @@ public class Game {
                 currentPlayer++;
             } else if(setPlayer.equals("n")) { // This player should be AI
                 // Maybe here do more logic to choose AI type?
-                this.players.add(new CompAggressive(currentPlayer+1, 8));
+                this.players.add(new SSAI(currentPlayer+1, 8));
                 currentPlayer++;
             } else {    
                 // Input not allowed, loop again

@@ -350,11 +350,11 @@ public class Board {
      * @return an ArrayList of Lands that border hostile lands
      */
     public ArrayList<Land> getControlledBorderLands(Player player){
-        ArrayList<Land> borderLands = getControlledLands(player);   // all Lands that border a hostile Land
+        ArrayList<Land> borderLands = new ArrayList<>();   // all Lands that border a hostile Land
 
-        for(Land l : borderLands){  // goes through all Lands the Player controls
-            if(!l.hasEnemyNeighbour()){   // this Land does not border a hostile Land
-                borderLands.remove(l);
+        for(Land maybeBorderLand : getControlledLands(player)){  // goes through all Lands the Player controls
+            if(maybeBorderLand.hasEnemyNeighbour()){
+                borderLands.add(maybeBorderLand);
             }
         }
 

@@ -5,10 +5,10 @@ import java.util.*;
 
 public class TurnPlan {
     
-    private Stack<Action> plan;
+    private Queue<Action> plan;
 
     public TurnPlan(){
-        plan = new Stack<>(); // Stack or queue?
+        plan = new LinkedList<>(); // Stack or queue?
     }
 
     public void addAction(Board board, Object action){
@@ -16,11 +16,15 @@ public class TurnPlan {
     }
 
     public Action nextAction(){
-        return plan.pop();
+        return plan.remove();
     }
 
     public boolean isPlanEmpty(){
-        return plan.empty();
+        return plan.isEmpty();
+    }
+
+    public void wipe(){
+        plan.clear();
     }
 
     /*
@@ -35,7 +39,7 @@ public class TurnPlan {
 
     public class Action{
         public Board currentBoard;
-        public Object action;
+        public Object action; // Actions are either Reinforcements or Moves
 
         public Action(Board currentBoard, Object action){
             this.currentBoard = currentBoard;
