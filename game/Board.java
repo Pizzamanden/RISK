@@ -414,6 +414,15 @@ public class Board {
         return diceRolls;
     }
 
+    /*
+     *  This call is only actually done in the game.
+     *  But an AI would maybe like easy access to this when copying boards
+     */
+    public void carryOutMovement(Move move){
+        move.from.changeTroopCount(-move.count);
+        move.to.changeTroopCount(move.count);
+    }
+
 
 
     @Override

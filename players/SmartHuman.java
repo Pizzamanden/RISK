@@ -59,45 +59,24 @@ public class SmartHuman extends Player{
                 System.out.println("To view all available commands, type \"help\" (without the brackets)");
                 continue;
             }
-            // Successful parse, now check the legality of the input
-            // Quickly check that the troop count is above 0
-            if(troopCount < 1){
-                System.out.println("You must use 1 or more troops for any attack. Try again");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
-                continue;
-            }
-            Land fLand = board.getLandByName(splicedInput[0]);
-            Land tLand = board.getLandByName(splicedInput[1]);
-            // If the land cannot be found, getLandByName can return null, check for that first
-            if(fLand == null){
-                System.out.println("Could not find the land you are trying to make an attack from. Try again");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
-                continue;
-            }
-            if(tLand == null){
-                System.out.println("Could not find the land you are trying to make an attack to. Try again");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
-                continue;
-            }
-            // The first number is the starting land
-            // This player must control the source of the attack
-            if(fLand.getController() != this){
-                System.out.println("You do not control the land you are trying to make an attack from. Try again");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
-                continue;
-            }
+            
             // Check if the amount of troops specified is greater than 3. If it is, reduce it, but tell the player.
             if(troopCount > 3){
                 System.out.println("You can attack with at most 3 troops at once. You can always make multiple attacks in the same turn.");
                 System.out.println("The attack is set to be using 3 troops.");
+                // We could just use Math.min(3, troopCount), but here we get to tell the player that their planned attack was edited, allowing them to reconsider.
                 troopCount = 3;
             }
-            // Check that the source land has enough troops for the attack
-            if(fLand.getTroopCount()-1 < troopCount){
-                System.out.println("The specified land does not have enough troops for the order. Try specifying another source land, or use less troops.");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
+            
+            Land fLand = board.getLandByName(splicedInput[0]);
+            Land tLand = board.getLandByName(splicedInput[1]);
+            
+            // Successful parse, now check the legality of the input
+            if(!checkValidity(fLand, tLand, troopCount)){
+                // Just continue, since the method takes care of the printing
                 continue;
             }
+
             // The controller of the target determines the action
             if(tLand.getController() == this){
                 // This is a movement
@@ -166,39 +145,14 @@ public class SmartHuman extends Player{
                 System.out.println("To view all available commands, type \"help\" (without the brackets)");
                 continue;
             }
-            // Successful parse, now check the legality of the input
-            // Quickly check that the troop count is above 0
-            if(troopCount < 1){
-                System.out.println("You must use 1 or more troops for any action. Try again");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
-                continue;
-            }
             Land fLand = board.getLandByName(splicedInput[0]);
             Land tLand = board.getLandByName(splicedInput[1]);
-            // If the land cannot be found, getLandByName can return null, check for that first
-            if(fLand == null){
-                System.out.println("Could not find the land you are trying to make an action from. Try again");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
+
+            // Successful parse, now check the legality of the input
+            if(!checkValidity(fLand, tLand, troopCount)){
                 continue;
             }
-            if(tLand == null){
-                System.out.println("Could not find the land you are trying to make an action to. Try again");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
-                continue;
-            }
-            // The first number is the starting land
-            // This player must always control the source of an action
-            if(fLand.getController() != this){
-                System.out.println("You do not control the land you are trying to make an action from. Try again");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
-                continue;
-            }
-            // Check that the source land has enough troops for the order
-            if(fLand.getTroopCount()-1 < troopCount){
-                System.out.println("The specified land does not have enough troops for the order. Try specifying another source land, or use less troops.");
-                System.out.println("To view all available commands, type \"help\" (without the brackets)");
-                continue;
-            }
+
             // The controller of the target determines the action
             if(tLand.getController() == this){
                 // Movement order
@@ -220,6 +174,44 @@ public class SmartHuman extends Player{
                 return new Move(this, fLand, tLand, troopCount);
             }
         }
+    }
+
+    /*
+     *  Method for centralizing duplicated code.
+     *  Handles all logic regarding 
+     */
+    private boolean checkValidity(Land from, Land to, int count){
+        // Quickly check that the troop count is above 0
+        if(count < 1){
+            System.out.println("You must use 1 or more troops for any action. Try again");
+            System.out.println("To view all available commands, type \"help\" (without the brackets)");
+            return false;
+        }
+        // If the land cannot be found, getLandByName can return null, check for that first
+        if(from == null){
+            System.out.println("Could not find the land you are trying to make an action from. Try again");
+            System.out.println("To view all available commands, type \"help\" (without the brackets)");
+            return false;
+        }
+        if(to == null){
+            System.out.println("Could not find the land you are trying to make an action to. Try again");
+            System.out.println("To view all available commands, type \"help\" (without the brackets)");
+            return false;
+        }
+        // The first number is the starting land
+        // This player must always control the source of an action
+        if(from.getController() != this){
+            System.out.println("You do not control the land you are trying to make an action from. Try again");
+            System.out.println("To view all available commands, type \"help\" (without the brackets)");
+            return false;
+        }
+        // Check that the source land has enough troops for the order
+        if(from.getTroopCount()-1 < count){
+            System.out.println("The specified land does not have enough troops for the order. Try specifying another source land, or use less troops.");
+            System.out.println("To view all available commands, type \"help\" (without the brackets)");
+            return false;
+        }
+        return true;
     }
 
     /*

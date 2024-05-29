@@ -135,15 +135,22 @@ public class Game {
             System.out.println("The turn of player " + playerNumber + " is over.");
             // Their turn is now over, after having reinforced, and having had the option to do as many moves as they want
         }
+        // Find the winner
+        Player winner = null;
+        for (Player player : players) {
+            if(board.getControlledLands(player, true).size() == board.getBoardSize()){
+                winner = player;
+                break;
+            }
+        }
+        System.out.println("The game is over! Player " + winner.assignedNumber + " has taken control of all lands. Gratz!");
     }
 
     /*
      *  Carry out a movement.
-     *  The board could be the one doing this, but having prints in any such case could force and AI to make prints when simulating.
      */
     public void carryOutMovement(Move move){
-        move.from.changeTroopCount(-move.count);
-        move.to.changeTroopCount(move.count);
+        board.carryOutMovement(move);
     }
     
     /*
