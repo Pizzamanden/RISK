@@ -307,6 +307,24 @@ public ArrayList<Land> getListOfActionableLands(Player player){
         return contLands;
     }
 
+    /**
+     * Returns an ArrayList of all Lands the given
+     * Player controls that border hostile Lands.
+     * @param player - the Player
+     * @return an ArrayList of Lands that border hostile lands
+     */
+    public ArrayList<Land> getControlledBorderLands(Player player){
+        ArrayList<Land> borderLands = getControlledLands(player);   // all Lands that border a hostile Land
+
+        for(Land l : borderLands){  // goes through all Lands the Player controls
+            if(!l.hasEnemyNeighbour(player)){   // this Land does not border a hostile Land
+                borderLands.remove(l);
+            }
+        }
+
+        return borderLands;
+    }
+
     /*
      *  
      */
@@ -497,7 +515,7 @@ public ArrayList<Land> getListOfActionableLands(Player player){
             Land landCopy = new Land(
                 l.getName(),
                 l.landID,
-                l.getController(),  // Yes, shallow copy the players.
+                l.getController(),  // shallow copy of the Player.
                 new Coordinate(l.coords.x, l.coords.y)
             );
             copy.lands.add(landCopy);
