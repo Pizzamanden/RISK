@@ -23,6 +23,11 @@ public abstract class AI extends Player{
     /*
      *  Keep this abstract in this extension
      */
+    public abstract Move attack(Board board);
+
+    /*
+     *  Keep this abstract in this extension
+     */
     public abstract Reinforcement reinforce(Board board, int reinforceRemaining);
 
 

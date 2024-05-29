@@ -26,6 +26,14 @@ public class CompAggressive extends AI{
     }
 
     @Override
+    public Move attack(Board board) {
+        Move move = null;
+        // Time to actually make an AI
+        // Finding the best move to make, in some order in this turn, does involve making your own move method, or using a list of helper methods from AI.
+        return move;
+    }
+
+    @Override
     public int evaluateBoard(Board board) {
         int eval = 1;
         // Time to actually make an AI

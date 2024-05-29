@@ -329,6 +329,20 @@ public class Board {
         return contLands;
     }
 
+    /*
+     *  A method which returns a list of all the lands the specified player controls
+     *  Accepts a given player, which can be used to specify if its lands controlled by this player, or NOT by this player
+     */
+    public ArrayList<Land> getControlledLands(Player player, Boolean ownedByThisPlayer){
+        ArrayList<Land> contLands = new ArrayList<>();
+        for (Land land : this.lands) {
+            if((land.getController() == player) == ownedByThisPlayer){ // See Land.getNeighbours for this logic
+                contLands.add(land);
+            }
+        }
+        return contLands;
+    }
+
     /**
      * Returns an ArrayList of all Lands the given
      * Player controls that border hostile Lands.
