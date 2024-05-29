@@ -133,6 +133,7 @@ public class Land {
     /*
      *  Returns a list of neighbours
      *  The list itself is not the same reference, but the neighbours are the references used.
+     *  Works exactly as a copy of the list of neighbours. The lands are still their same references, its just this list not being the same list as the one in the class
      */
     public ArrayList<Land> getNeighbours(){
         ArrayList<Land> list = new ArrayList<>();

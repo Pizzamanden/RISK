@@ -266,15 +266,37 @@ public class Board {
 
 // - - - - - - - - - - - - - - - - - - Actions that can be performed
 
-public ArrayList<Land> getListOfActionableLands(Player player){
-    ArrayList<Land> candidateLands = new ArrayList<>();
-    for (Land land : this.lands) {
-        if(land.getController() == player && land.getTroopCount() > 1){
-            candidateLands.add(land);
+    public ArrayList<Land> getListOfActionableLands(Player player){
+        ArrayList<Land> candidateLands = new ArrayList<>();
+        for (Land land : this.lands) {
+            if(land.getController() == player && land.getTroopCount() > 1){
+                candidateLands.add(land);
+            }
         }
+        return candidateLands;
     }
-    return candidateLands;
-}
+    
+    /*
+     *  With a move and a specific outcome, return a copy of the board where this has happened
+     */
+    public Board applyOutcomeOnBoard(Move move, Outcome outcome){
+        Board newBoard = this.copy();
+        Land newAttLand = newBoard.lands.get(newBoard.lands.indexOf(move.from));
+        Land newDefLand = newBoard.lands.get(newBoard.lands.indexOf(move.to));
+        // Attacking land has lost as many troops as attackers have died
+        newAttLand.changeTroopCount(-outcome.attackersDying);
+        // Defender land has lost as many troops as defenders have died
+        newDefLand.changeTroopCount(-outcome.defendersDying);
+        // Did the land change hands?
+        // Get the land in the copy that matches the land in the move.to
+        if(newDefLand.getTroopCount() == 0){
+            newAttLand.changeTroopCount(-1); // Move the guy who captures
+            newDefLand.changeTroopCount(1); // He moves here
+            newDefLand.changeController(move.player); // Now owned by the attacker
+        }
+        // Return the copy with the change
+        return newBoard;
+    }
 
 
 // - - - - - - - - - - - - - - - - - - Lists of the board, and other information 
@@ -317,7 +339,7 @@ public ArrayList<Land> getListOfActionableLands(Player player){
         ArrayList<Land> borderLands = getControlledLands(player);   // all Lands that border a hostile Land
 
         for(Land l : borderLands){  // goes through all Lands the Player controls
-            if(!l.hasEnemyNeighbour(player)){   // this Land does not border a hostile Land
+            if(!l.hasEnemyNeighbour()){   // this Land does not border a hostile Land
                 borderLands.remove(l);
             }
         }
@@ -367,7 +389,7 @@ public ArrayList<Land> getListOfActionableLands(Player player){
         return lands.size();
     }
 
-// STATIC METHOD FOR ROLLING A SET OF DICE
+    // STATIC METHOD FOR ROLLING A SET OF DICE
     // Method to roll a specified number of dice
     public static ArrayList<Integer> rollDice(int count) {
         Random rand = new Random();
