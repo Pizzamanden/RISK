@@ -3,11 +3,11 @@ package players;
 import containers.*;
 import game.*;
 
-public abstract class Player{
+public abstract class PlayerRevamp{
     
     public int assignedNumber;
 
-    public Player(int assignedNumber){
+    public PlayerRevamp(int assignedNumber){
         this.assignedNumber = assignedNumber;
     }
 

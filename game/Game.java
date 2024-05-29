@@ -22,13 +22,6 @@ public class Game {
         this.players = new ArrayList<>();
         ProbTable.getOutcomes(1, 1);
         newGame();
-        // ArrayList<ArrayList<Integer>> table = ProbTable.makeDiceSet(3);
-        // for (ArrayList<Integer> rollSet : table) {
-        //     for (int roll : rollSet) {
-        //         System.out.print(roll + ", ");
-        //     }
-        //     System.out.print("\n");
-        // }
     }
 
     /*
@@ -44,7 +37,7 @@ public class Game {
             System.out.println("Should player " + (currentPlayer+1) + " be a human? Y/N");
             String setPlayer = scanner.nextLine().toLowerCase();
             if(setPlayer.equals("y")){ // This player should be human
-                this.players.add(new Human(currentPlayer+1));
+                this.players.add(new SmartHuman(currentPlayer+1));
                 currentPlayer++;
             } else if(setPlayer.equals("n")) { // This player should be AI
                 // Maybe here do more logic to choose AI type?
@@ -96,9 +89,30 @@ public class Game {
             } // The logic inside this loop should make the loop terminate when the player has used all their reinforcements
             // Make the player give a move
             // If the move is NULL, it signifies an end to their turn.
-            System.out.println("\nAction phase begins.");
+            System.out.println("\nAttack phase begins.");
+            Move attemptAttack = player.attack(board);
+            while(attemptAttack != null){ // Null signifies that the phase is done.
+                // Check that the move attempted is legal
+                if(board.isMoveLegal(attemptAttack)){
+                    // Now identify the type of movement
+                    if(attemptAttack.to.getController() == attemptAttack.player){
+                        // This is a move order
+                        System.out.println("You are only allowed to attack in this phase. End the phase to transition to the movement phase. Try again.");
+                    } else {
+                        // This is an attack order
+                        carryOutAttack(attemptAttack);
+                        System.out.println("Your attack from " + attemptAttack.from.getName() + " against " + attemptAttack.to.getName() + " with " + attemptAttack.count + " troops has concluded.");
+                    }
+                } else {
+                    // Move was not a legal movement or an attack, but neither was it null
+                    System.out.println("The specified attack could not be executed. Try again.");
+                }
+                System.out.println("What would you like to do now?");
+                attemptAttack = player.move(board);
+            }
+            System.out.println("\nMovement phase begins. You have at most 1 move to make");
             Move attemptMove = player.move(board);
-            while(attemptMove != null){ // Null signifies that the turn is done.
+            while(attemptMove != null){ // Null signifies that the phase is done.
                 // Check that the move attempted is legal
                 if(board.isMoveLegal(attemptMove)){
                     // Now identify the type of movement
@@ -106,17 +120,17 @@ public class Game {
                         // This is a move order
                         carryOutMovement(attemptMove);
                         System.out.println("Your movement from " + attemptMove.from.getName() + " and to " + attemptMove.to.getName() + " with " + attemptMove.count + " troops was a success!");
+                        attemptMove = null; // Set this to null to signify that they used their movement
                     } else {
                         // This is an attack order
-                        carryOutAttack(attemptMove);
-                        System.out.println("Your attack from " + attemptMove.from.getName() + " against " + attemptMove.to.getName() + " with " + attemptMove.count + " troops has concluded.");
+                        System.out.println("You are only allowed to move in this phase. Try again.");
+                        attemptMove = player.move(board); // Allow the player to try again
                     }
                 } else {
                     // Move was not a legal movement or an attack, but neither was it null
                     System.out.println("The specified move could not be executed. Try again.");
+                    attemptMove = player.move(board); // Allow the player to try again
                 }
-                System.out.println("What would you like to do now?");
-                attemptMove = player.move(board);
             }
             System.out.println("The turn of player " + playerNumber + " is over.");
             // Their turn is now over, after having reinforced, and having had the option to do as many moves as they want
@@ -201,6 +215,27 @@ public class Game {
      */
     public static void printGivenGame(Board board){
         System.out.println(board.toString());
+    }
+
+    /*
+     *  Print out the given board on call
+     */
+    public static void printBoardStatus(Board board, Player player){
+        System.out.println("\nYou currently own these lands:");
+        char landSymbol = '@';
+        ArrayList<Land> oLand = board.getControlledLands(player, true);
+        for (Land land : oLand) {
+            landSymbol = (char)  (land.landID + 97);
+            System.out.println("Name: " + land.getName() + ", Symbol: " + landSymbol + ", Owner: You, Troop count: " + land.getTroopCount() + ".");
+        }
+        
+        System.out.println("\nYou do not own these lands:");
+        ArrayList<Land> eLand = board.getControlledLands(player, false);
+        for (Land land : eLand) {
+            landSymbol = (char)  (land.landID + 97);
+            System.out.println("Name: " + land.getName() + ", Symbol: " + landSymbol + ", Owner: " + land.getController().assignedNumber + ", Troop count: " + land.getTroopCount() + ".");
+        }
+        System.out.println("\n");
     }
 
     /*

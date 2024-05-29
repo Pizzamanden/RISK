@@ -21,6 +21,33 @@ public class PeterAI extends AI{
     }
 
     @Override
+    public Move attack(Board board) {
+        Move move = null;
+        if(cTurnPlan.isPlanEmpty()){
+            // If at this point the plan is empty, that correlates to ending our turn
+            return move;
+        }
+        // If the plan is not empty, check that the next move has a board that matches the current board
+        Action nextAction = cTurnPlan.nextAction();
+        if(!(nextAction.action instanceof Move)){
+            // Something went wrong
+        }
+        if(!(nextAction.currentBoard.equals(board))){
+            // Our last move made has fucked up the timeline, replan!
+            planTurn(0);
+            if(cTurnPlan.isPlanEmpty()){ // Check if we just want to end our turn now
+                return move;
+            }
+            // This action should be good, since we just made it
+            nextAction = cTurnPlan.nextAction();
+            
+        }
+        // Either we are still on plan, or we just replanned.
+        // In any case, we can move ahead with the nextAction
+        return (Move) nextAction.action;
+    }
+
+    @Override
     public Move move(Board board) {
         Move move = null;
         if(cTurnPlan.isPlanEmpty()){
@@ -76,14 +103,18 @@ public class PeterAI extends AI{
         return (Reinforcement) nextAction.action;
     }
 
+
     /*
      *  This method sets the current turn plan
      */
     private void planTurn(int reinforceRemaining){
         if(reinforceRemaining > 0){
             // We are in reinforcement phase
+            // We need to figure out which zone we want to place how many troops in
+            // This should be done by looking at all the options of placements, and seeing what we can get done with it.
         } else {
-            // We are in movement phase. This is indicative of a plan failing
+            // We are in movement phase. This is indicative of a plan failing.
+            // Use the current board to figure out what should be done
         }
         // Do AI magik
     }
