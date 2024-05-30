@@ -6,7 +6,7 @@ import java.util.ArrayList;
 /**
  * An attempt to make an AI :)
  */
-public class AIAttempt extends AI{
+public class MrAI extends AI{
     /**
      * Methods required:
      *  Reinforce - handles the reinforcement phase. There should be no considerations here, all should be calculated. 
@@ -35,14 +35,13 @@ public class AIAttempt extends AI{
      */
 
     
-    private int threshold = 2;   // the least value the best attack must have before we commit to it
     private int maxDepth;   // the deapth the AND-OR search goes to
 
     /**
      * Constructor for AI
      * @param depth - the max depth the AI goes to in the AND-OR tree search
      */
-    public AIAttempt(int assignedNumber, int depth){
+    public MrAI(int assignedNumber, int depth){
         super(assignedNumber);
         this.maxDepth = depth;
     }
@@ -70,12 +69,28 @@ public class AIAttempt extends AI{
         actions = actions(board, this);
         if(actions.size() > 0){ // there are actions to do
             bestAttack = OR_Search(board, actions, maxDepth); 
-            if(bestAttack[1] >= threshold){  // if the value of best attack is larger than the threshold, commit to attack
+            System.out.println("Value of Move chosen: " + bestAttack[1]);
+            System.out.println("Value of current Board: " + (evaluateBoard(board) * 0.9));
+            if(threshold(bestAttack[1], board)){  // if the value of best attack is worth it, commit to it
                 return actions.get(bestAttack[0]);
             }
         }
         
         return null;    // the best attack is not good enough, or there are no actions, return null
+    }
+
+    /**
+     * Calculates the threshold for which an attack has to 
+     * better than for the AI to commit to it.
+     * Looks at the current Board and estimates if it is worth it to 
+     * do the best attack found. 
+     * @param value - the value of the best Move
+     * @param board - the Board as it currently is
+     * @return 
+     */
+    private boolean threshold(int value, Board board){
+        // if the best value is larger than the value of the Board as it currently is, slight penalty to the current Board ot encourage aggresion
+        return value >= (evaluateBoard(board) * 0.9);    
     }
 
     /**
@@ -264,18 +279,17 @@ public class AIAttempt extends AI{
      */
     public int evaluateBoard(Board board){
         int value = 0;
-        int troopCount = 0;
-        
-        value += board.getControlledLandsCount(this); // + the number of lands controlled
-        value -= board.getControlledBorderLands(this).size(); // - the number of borders
+        int defendedBorderLands = 0;
 
-        for(Land l : board.getControlledBorderLands(this)){ // calculating border Lands with a troop count higher than 1
-            if(l.getTroopCount() > 1){
-                troopCount++;
+        for(Land l : board.getControlledBorderLands(this)){
+            if(1 < l.getTroopCount() && l.getTroopCount() < 4){
+                defendedBorderLands++;
             }
         }
         
-        value += troopCount;    // + border Lands with more than 1 troop
+        value += board.getControlledLandsCount(this); // + the number of lands controlled
+        value -= board.getControlledBorderLands(this).size(); // - the number of borders
+        value += defendedBorderLands * 2;   // + 1 for each border than has more than 1 troop but less than 4 troops
 
         return value;
     }

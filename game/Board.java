@@ -259,9 +259,7 @@ public class Board {
      */
     public int countReinforcements(Player player){
         int count = 3;
-        Math.max(count, getControlledLandsCount(player)/landCountForReinforcement);
-
-        return count;
+        return Math.max(count, getControlledLandsCount(player)/landCountForReinforcement);
     }
 
 // - - - - - - - - - - - - - - - - - - Actions that can be performed

@@ -9,6 +9,7 @@ public class Game {
 
     private Scanner scanner = new Scanner(System.in);
     private ArrayList<Player> players;
+    private int depth = 5;  // used to define how far ahead the AI's think
 
     // By using the one random number, using it again should make the same board. The dice rolls do not use the seed
     // For any combination of seed, playerCount and board size, a specific board should be generated
@@ -41,7 +42,7 @@ public class Game {
                 currentPlayer++;
             } else if(setPlayer.equals("n")) { // This player should be AI
                 // Maybe here do more logic to choose AI type?
-                this.players.add(new AIAttempt(currentPlayer+1, 2));
+                this.players.add(new MrAI(currentPlayer+1, depth));
                 currentPlayer++;
             } else {    
                 // Input not allowed, loop again
