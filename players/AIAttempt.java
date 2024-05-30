@@ -35,7 +35,7 @@ public class AIAttempt extends AI{
      */
 
     
-    private int threshold = 1;   // the least value the best attack must have before we commit to it
+    private int threshold = 2;   // the least value the best attack must have before we commit to it
     private int maxDepth;   // the deapth the AND-OR search goes to
 
     /**
@@ -64,15 +64,18 @@ public class AIAttempt extends AI{
      * @return the best move for the given Board
      */
     public Move attack(Board board){
-        Move[] actions;    // all attacks possible
+        ArrayList<Move> actions;    // all attacks possible
         int[] bestAttack;   // the index of the best attack action and the value of it
 
         actions = actions(board, this);
-        bestAttack = OR_Search(board, actions, maxDepth); 
-        if(bestAttack[1] >= threshold){  // if the value of best attack is larger than the threshold, commit to attack
-            return actions[bestAttack[0]];
+        if(actions.size() > 0){ // there are actions to do
+            bestAttack = OR_Search(board, actions, maxDepth); 
+            if(bestAttack[1] >= threshold){  // if the value of best attack is larger than the threshold, commit to attack
+                return actions.get(bestAttack[0]);
+            }
         }
-        return null;    // the best attack is not good enough, return null
+        
+        return null;    // the best attack is not good enough, or there are no actions, return null
     }
 
     /**
@@ -85,12 +88,12 @@ public class AIAttempt extends AI{
     public Move move(Board board){
         Move movement = null;  // the movement Move to end the turn with. Initialised to NULL, since no Move means we return NULL
         Land weakestLand;   // the weakest Land
-        ArrayList<Land> neighbours; // the neighbours of the weakest Land
+        ArrayList<Land> neighbours; // the friendly neighbours of the weakest Land
         Land strongestNeighbour;
 
         // we want to fortify the weakest Land by moving troops there from a neighbour
         weakestLand = getWeakestLand(board, this);
-        neighbours = weakestLand.getNeighbours(this, true);   // gets all neighbours owned by this player
+        neighbours = weakestLand.getNeighbours(this, true);   // gets all friendly neighbours owned by this player
         
         if(neighbours.size() > 0){  // weakest country has neighbours
             strongestNeighbour = neighbours.get(0);
@@ -100,9 +103,23 @@ public class AIAttempt extends AI{
                 }
             }
 
-            // moves half the difference between the Lands troops counts from strongest to weakest
-            movement = new Move(this, strongestNeighbour, weakestLand, (strongestNeighbour.getTroopCount()-weakestLand.getTroopCount())/2);
+            if(strongestNeighbour.getTroopCount() > 1){ // strongest neighbour can move troops
+                // moves 1 troop to the weakest Land from its storngest neighbour
+                movement = new Move(this, strongestNeighbour, weakestLand, 1);
+            }
         }
+
+        // if(movement != null){
+        //     System.out.println("\n--------------------\n" + 
+        //                        "AIATTEMPT ATTEMPTING FOLLOWING MOVE\n" +
+        //                        "From: " + movement.from.getName() + "\n" +
+        //                        "To: " + movement.to.getName() + "\n" + 
+        //                        "Count: " + movement.count + "\n" + 
+        //                        "\n--------------------\n");
+        // }
+        // else{
+        //     System.out.println("----- MOVEMENT IS NULL -----");
+        // }
         
         return movement;
     }
@@ -116,13 +133,13 @@ public class AIAttempt extends AI{
      * @param depth - the remaining levels we wish to make in the AND-OR tree
      * @return touple of ints containing the index and value of the best Move found
      */
-    private int[] OR_Search(Board board, Move[] actions, int depth){
-        Board[] results;    // all possible results from performing this action
-        int[] values = new int[actions.length];    // the values of each AND-node
+    private int[] OR_Search(Board board, ArrayList<Move> actions, int depth){
+        ArrayList<Board> results;    // all possible results from performing this action
+        int[] values = new int[actions.size()];    // the values of each AND-node
         int index;  // index of the best action
 
-        for(int i=0; i<actions.length; i++){ // simulate each action
-            results = results(board, this, actions[i]);
+        for(int i=0; i<actions.size(); i++){ // simulate each action
+            results = results(board, this, actions.get(i));
             values[i] = AND_Search(results, depth-1); // the value of this action is the value of the worst case result of this action
         }
 
@@ -138,19 +155,25 @@ public class AIAttempt extends AI{
      * @param depth - determines whether we calculate value now or make another level
      * @return the worst-case value of the action generating the given results
      */
-    private int AND_Search(Board[] results, int depth){
-        Move[] actions; // actions that can be taken on the current Board
-        int[] values = new int[results.length]; // the value of each OR-node
+    private int AND_Search(ArrayList<Board> results, int depth){
+        ArrayList<Move> actions; // actions that can be taken on the current Board
+        int[] values = new int[results.size()]; // the value of each OR-node
         
         if(depth > 0){  // we go down another level in the search tree
-            for(int i=0; i<results.length; i++){
-                actions = actions(results[i], this);
-                values[i] = OR_Search(results[i], actions, depth)[1];
+            for(int i=0; i<results.size(); i++){
+                actions = actions(results.get(i), this);
+
+                if(actions.size() > 0){    // actions can be taken from this Board 
+                    values[i] = OR_Search(results.get(i), actions, depth)[1];
+                }
+                else{   // no actions can be taken on this Board, we evaluate the Board
+                    values[i] = evaluateBoard(results.get(i)); 
+                }
             }
         }
         else{   // we evaluate the the current results
-            for(int i=0; i<results.length; i++){
-                values[i] = evaluateBoard(results[i]);
+            for(int i=0; i<results.size(); i++){
+                values[i] = evaluateBoard(results.get(i));
             }
         }
 
@@ -166,15 +189,15 @@ public class AIAttempt extends AI{
      * @param player - the Player the AI plays for.
      * @return an array of Moves the AI can perform on the given Board for the given Player
      */
-    private static Move[] actions(Board board, Player player){
+    private static ArrayList<Move> actions(Board board, Player player){
         ArrayList<Move> possibleActions = new ArrayList<>(); // all possible attack actions for the Player on the Board
         ArrayList<Land> borderingLands = board.getControlledBorderLands(player);    // all lands that are currently bordering a hostile territory
-        ArrayList<Land> neighbours = new ArrayList<>(); // the neighbours of the current Land
+        ArrayList<Land> neighbours = new ArrayList<>(); // the hostile neighbours of the current Land
         int troopCount; // the troop count on the current Land
 
         for(Land l : borderingLands){
             troopCount = l.getTroopCount();
-            neighbours = l.getHostileNeighbours();
+            neighbours = l.getNeighbours(player, false);
             for(Land neighbour : neighbours){
                 if(troopCount == 2){ // l can attack with 1 troop
                     possibleActions.add(new Move(player, l, neighbour, 1));
@@ -189,7 +212,7 @@ public class AIAttempt extends AI{
             
         }
 
-        return (Move[]) possibleActions.toArray();
+        return possibleActions;
     }
 
     /**
@@ -201,7 +224,7 @@ public class AIAttempt extends AI{
      * @param action - the action to perform on the Board.
      * @return an array of Boards representing all results from performing the given Action on the given Board.
      */
-    private static Board[] results(Board board, Player player, Move action){
+    private static ArrayList<Board> results(Board board, Player player, Move action){
         ArrayList<Outcome> possibleOutcomes = ProbTable.getOutcomes(action.count, action.to.getTroopCount());   // all possible Outcomes from the given action
         ArrayList<Board> possibleBoards = new ArrayList<>();    // all states this action can lead to
         Board newBoard; // the new state after applying the current outcome
@@ -229,7 +252,7 @@ public class AIAttempt extends AI{
             possibleBoards.add(newBoard);
         }
 
-        return (Board[]) possibleBoards.toArray();
+        return possibleBoards;
     }
 
     /**
@@ -246,11 +269,13 @@ public class AIAttempt extends AI{
         value += board.getControlledLandsCount(this); // + the number of lands controlled
         value -= board.getControlledBorderLands(this).size(); // - the number of borders
 
-        for(Land l : board.getControlledLands(this)){ // calculating total troops owned
-            troopCount += l.getTroopCount();
+        for(Land l : board.getControlledBorderLands(this)){ // calculating border Lands with a troop count higher than 1
+            if(l.getTroopCount() > 1){
+                troopCount++;
+            }
         }
         
-        value += troopCount * 0.25;    // + troop count times a factor
+        value += troopCount;    // + border Lands with more than 1 troop
 
         return value;
     }
@@ -269,12 +294,12 @@ public class AIAttempt extends AI{
         ArrayList<Land> neighbours = new ArrayList<>(); // the neighbours of the current land
         int[] borderingHostileTroopCount = new int[borderLands.size()];    // the number of hostile troops in bordering Lands. The indexes are one to one with borderLands
         int weakestLand;    // the index for the currently weakest Land
-        int weakestLandRelativeThreat;  // the relative threat the currently weakest Land is under
-        int currentLandRelativeThreat; // the relative theat the current Land is under
+        double weakestLandRelativeThreat;  // the relative threat the currently weakest Land is under
+        double currentLandRelativeThreat; // the relative theat the current Land is under
 
         // for each border land, calculate the number of hostile troops bordering it
         for(int i=0; i < borderLands.size(); i++){  // for each border land
-            neighbours = borderLands.get(i).getHostileNeighbours();
+            neighbours = borderLands.get(i).getNeighbours(player, false);
             for(int j=0; j<neighbours.size(); j++){   // for each neighbour of this land
                 borderingHostileTroopCount[i] += neighbours.get(j).getTroopCount();
             }

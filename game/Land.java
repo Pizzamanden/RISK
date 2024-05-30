@@ -162,21 +162,6 @@ public class Land {
         return list;
     }
 
-    /**
-     * Returns a list of all neighbours that are not owned
-     * by the owner of this land.
-     * @return a list of all hostile neighbours.
-     */
-    public ArrayList<Land> getHostileNeighbours(){
-        ArrayList<Land> hostileNeighbours = this.getNeighbours();
-        for(Land l : hostileNeighbours){    // goes through all neighbours of this Land
-            if(l.getController() == this.controller){   // the neighbour is friendly
-                hostileNeighbours.remove(l);
-            }
-        }
-        return hostileNeighbours;
-    }
-
     public boolean isLandAttackTarget(Land target, Player attacker){
         ArrayList<Land> neighbours = this.getNeighbours();
         return (neighbours.contains(target) && target.getController() != attacker);
