@@ -21,6 +21,10 @@ public class SSAI extends AI{
         this.cTurnPlan = new TurnPlan();
     }
 
+    /*
+     *  Method for returning an attack on a given board
+     *  Uses the current plan, or replans if the plan is off track
+     */
     @Override
     public Move attack(Board board) {
         Action nextAction = cTurnPlan.nextAction();
@@ -36,6 +40,10 @@ public class SSAI extends AI{
         return (Move) nextAction.action;
     }
 
+    /*
+     *  Method for returning a move on a given board
+     *  Uses the current plan, or replans if the plan is off track
+     */
     @Override
     public Move move(Board board) {
         Action nextAction = cTurnPlan.nextAction();
@@ -63,7 +71,12 @@ public class SSAI extends AI{
     }
 
     /*
+     *  Method for returning a reinforcement for a given board, with some specified reinforcements left 
      *  For this AI, being asked to reinforce constitutes planning the entire turn
+     *  Therefore, when this is called, the plan should be empty
+     *  The AI then makes a plan, which functions as a queue
+     *  Each reinforcement is a remove() on this queue, taking the next order
+     *  The reinforcements in the queue should transition over to being attacks/moves at the same time that Game stops calling reinforcement(), whihc occurs when we are out of troops to place
      */
     @Override
     public Reinforcement reinforce(Board board, int reinforceRemaining) {

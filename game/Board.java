@@ -204,7 +204,7 @@ public class Board {
 
     public boolean isMoveLegal(Move move){
         // Does the specified move use a legal number of troops?
-        if(move.count < 1 || 3 < move.count){
+        if(move.count < 1){
             return false;
         }
         // Is there enough troops in the from-land to move any from it? 1 must remain on the land
@@ -220,12 +220,16 @@ public class Board {
         if(move.player == move.to.getController()){
             // This is a movement
             // Are the two specified lands connected?
-            if(!move.from.isConnectedTo(move.to)){
+            if(!move.from.hasNeighboringLand(move.to)){
                 return false;
             }
             // This movement is legal
         } else {
             // This is an attack
+            // We can attack with at most 2 troops
+            if(3 < move.count){
+                return false;
+            }
             // Are the two lands neighbours?
             if(!move.from.hasNeighboringLand(move.to)){
                 return false;
