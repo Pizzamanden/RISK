@@ -69,8 +69,6 @@ public class MrAI extends AI{
         actions = actions(board, this);
         if(actions.size() > 0){ // there are actions to do
             bestAttack = OR_Search(board, actions, maxDepth); 
-            System.out.println("Value of Move chosen: " + bestAttack[1]);
-            System.out.println("Value of current Board: " + (evaluateBoard(board) * 0.9));
             if(threshold(bestAttack[1], board)){  // if the value of best attack is worth it, commit to it
                 return actions.get(bestAttack[0]);
             }
@@ -123,18 +121,6 @@ public class MrAI extends AI{
                 movement = new Move(this, strongestNeighbour, weakestLand, 1);
             }
         }
-
-        // if(movement != null){
-        //     System.out.println("\n--------------------\n" + 
-        //                        "AIATTEMPT ATTEMPTING FOLLOWING MOVE\n" +
-        //                        "From: " + movement.from.getName() + "\n" +
-        //                        "To: " + movement.to.getName() + "\n" + 
-        //                        "Count: " + movement.count + "\n" + 
-        //                        "\n--------------------\n");
-        // }
-        // else{
-        //     System.out.println("----- MOVEMENT IS NULL -----");
-        // }
         
         return movement;
     }
@@ -310,6 +296,10 @@ public class MrAI extends AI{
         int weakestLand;    // the index for the currently weakest Land
         double weakestLandRelativeThreat;  // the relative threat the currently weakest Land is under
         double currentLandRelativeThreat; // the relative theat the current Land is under
+
+        if(borderLands.size() == 0){    // there are no border Lands. This player likely won the game
+            return board.getControlledLands(player).get(0); // returns any Land, doesn't matter, the turn just has to finish
+        }
 
         // for each border land, calculate the number of hostile troops bordering it
         for(int i=0; i < borderLands.size(); i++){  // for each border land
