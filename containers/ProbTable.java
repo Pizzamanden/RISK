@@ -28,7 +28,7 @@ public class ProbTable {
     /*
      *  Method for creating a list of outcomes depending on the input
      *  A call to this will return a list of the outcomes that can happen, along with the probability of this outcome being chosen
-     *  The probability of these outcomes should VERY FUCKING MUCH sum up to 1
+     *  The probability of these outcomes should sum up to 1
      *  This could also be a table in of itself
      */
     public static ArrayList<Outcome> getOutcomes(int attackers, int defenders){
@@ -55,7 +55,9 @@ public class ProbTable {
             }
         }
 
-        return outcomeTable.get(defenders-1).get(attackers-1);
+        int maxDefender = Math.min(defenders, 2);   // we can, at most, have 2 defenders defend.
+        int maxAttackers = Math.min(attackers, 3);  // we can, at most, have 3 attackers attack.
+        return outcomeTable.get(maxDefender-1).get(maxAttackers-1);
     }
 
     private static ArrayList<Outcome> calcScenario(ArrayList<ArrayList<Integer>> attackerRollSet, ArrayList<ArrayList<Integer>> defenderRollSet){
