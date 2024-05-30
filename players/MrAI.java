@@ -87,19 +87,19 @@ public class MrAI extends AI{
     public Move move(Board board){
         Move movement = null;  // the movement Move to end the turn with. Initialised to NULL, since no Move means we return NULL
         Land weakestLand;   // the weakest Land
-        Land strongestConnectedLand;    // the strongest Land connected to the weakest Land
+        Land strongestNeighbour;    // the strongest Land connected to the weakest Land
 
         // we want to fortify the weakest Land by moving troops there from a neighbour
         weakestLand = getWeakestLand(board, this);
-        strongestConnectedLand = getStrongestConnectedLand(board, this, weakestLand);
+        strongestNeighbour = getStrongestNeighbour(board, this, weakestLand);
         
-        if(weakestLand.equals(strongestConnectedLand)){  // weakest Land has no connected Lands
+        if(weakestLand.equals(strongestNeighbour)){  // weakest Land has no connected Lands
             return null;    // we cannot fortify the weakest Land
         }
 
-        if(strongestConnectedLand.getTroopCount() > 1){ // strongest connected Land can move troops
+        if(strongestNeighbour.getTroopCount() > 1){ // strongest connected Land can move troops
             // moves 1 troop to the weakest Land from its strongest connected Land
-            movement = new Move(this, strongestConnectedLand, weakestLand, 1);
+            movement = new Move(this, strongestNeighbour, weakestLand, 1);
         }
         
         return movement;
@@ -328,39 +328,39 @@ public class MrAI extends AI{
      * @param player - the Player 
      * @return the strongest Land connected to the given Land
      */
-    private static Land getStrongestConnectedLand(Board board, Player player, Land land){
-        ArrayList<Land> connectedLands = board.getConnectedLands(land, player); // a list of all border lands this player controls
+    private static Land getStrongestNeighbour(Board board, Player player, Land land){
+        ArrayList<Land> neighboursOfLand = land.getNeighbours(player, true); // a list of all border lands this player controls
         ArrayList<Land> neighbours = new ArrayList<>(); // the neighbours of the current land
-        int[] borderingHostileTroopCount = new int[connectedLands.size()];    // the number of hostile troops in bordering Lands. The indexes are one to one with connectedLands
-        int strongestLand;    // the index for the currently strongest Land
-        double strongestLandRelativeThreat;  // the relative threat the currently strongest Land is under
+        int[] borderingHostileTroopCount = new int[neighboursOfLand.size()];    // the number of hostile troops in bordering Lands. The indexes are one to one with connectedLands
+        int strongestNeighbour;    // the index for the currently strongest Land
+        double strongestNeighbourRelativeThreat;  // the relative threat the currently strongest Land is under
         double currentLandRelativeThreat; // the relative theat the current Land is under
 
-        if(connectedLands.size() == 0){    // there are no border Lands. This player likely won the game
-            return board.getControlledLands(player).get(0); // returns any Land, doesn't matter, the turn just has to finish
+        if(neighboursOfLand.size() == 0){    // there are no border Lands. This player likely won the game
+            return land; // if there are no neighbours, land itself is the strongest neighbour
         }
 
-        // for each border land, calculate the number of hostile troops bordering it
-        for(int i=0; i < connectedLands.size(); i++){  // for each border land
-            neighbours = connectedLands.get(i).getNeighbours(player, false);
+        // for each friendly neighbour land, calculate the number of hostile troops bordering it
+        for(int i=0; i < neighboursOfLand.size(); i++){  // for each friendly neighbour
+            neighbours = neighboursOfLand.get(i).getNeighbours(player, false);
             for(int j=0; j<neighbours.size(); j++){   // for each neighbour of this land
                 borderingHostileTroopCount[i] += neighbours.get(j).getTroopCount();
             }
         }
 
-        // find strongest land
-        strongestLand = 0;
-        for(int i=1; i<connectedLands.size(); i++){    // goes through all border Lands but the first one
+        // find strongest friendly neighbour
+        strongestNeighbour = 0;
+        for(int i=1; i<neighboursOfLand.size(); i++){    // goes through all friendly neighbours but the first one
             
-            // the relative threat is the sum of bordering hostiles divides by the troop count of the Land
-            strongestLandRelativeThreat = borderingHostileTroopCount[strongestLand] / connectedLands.get(strongestLand).getTroopCount();
-            currentLandRelativeThreat = borderingHostileTroopCount[i] / connectedLands.get(i).getTroopCount();
-            if(currentLandRelativeThreat < strongestLandRelativeThreat){  // current Land is under less threat than strongest Land
-                strongestLand = i;
+            // the relative threat is the sum of bordering hostiles divides by the troop count of the neighbour
+            strongestNeighbourRelativeThreat = borderingHostileTroopCount[strongestNeighbour] / neighboursOfLand.get(strongestNeighbour).getTroopCount();
+            currentLandRelativeThreat = borderingHostileTroopCount[i] / neighboursOfLand.get(i).getTroopCount();
+            if(currentLandRelativeThreat < strongestNeighbourRelativeThreat){  // current neighbour is under less threat than strongest neighbour
+                strongestNeighbour = i;
             }
         }
 
-        return connectedLands.get(strongestLand);
+        return neighboursOfLand.get(strongestNeighbour);
     }
 
     /**

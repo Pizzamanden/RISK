@@ -354,23 +354,6 @@ public class Board {
         return borderLands;
     }
 
-    /**
-     * Finds and returns the set of Lands the given Land is connected to
-     * @param land - the Land to find connected Lands for
-     * @param player - the player that controls the Land
-     * @return a list of all Lands connected to the given Land
-     */
-    public ArrayList<Land> getConnectedLands(Land land, Player player){
-        ArrayList<ArrayList<Land>> zones = getConnectedLandZones(player);
-        ArrayList<Land> connectedLand = null;
-        
-        for(ArrayList<Land> zone : zones)   // finds the zone this Land is part of
-            if(zone.contains(land))
-                connectedLand = zone;
-
-        return connectedLand;
-    }
-
     /*
      *  
      */
