@@ -23,17 +23,20 @@ public class SmartHuman extends Player{
     public Move attack(Board board){
         while(true){
             
+            System.out.println("You can type \"help\" if you need to view all commands.");
             System.out.print("\nWhat would you like to do? ");
             String input = scanner.nextLine().toLowerCase();
             if(input.equals("help")){
+                System.out.println("\n\n\nHELP:");
                 System.out.println("You can type your command as 2 names of lands followed by a number, with each seperated by spacebar, to issue a command.");
-                System.out.println("The command is then interpreted as either a movement or an attack, depending on what it can be.");
-                System.out.println("Example: \"Germany Poland 3\" (without the brackets) to attack Poland from with 3 troops.");
-                System.out.println("\nYou can also type \"done\" to end your turn, or \"map\" to view the map.");
+                System.out.println("The command has to be a legal attack of troops from one of your lands, to one of its hostile neighbours.");
+                System.out.println("Example: \"Germany Poland 3\" (without the brackets) to attack Poland from Germany with 3 troops");
+                System.out.println("You can attack as many times in a turn as you can/want to, with at most 3 troops per attack (which would give the best odds of winning)");
+                System.out.println("\nYou can also type \"done\" to end your turn, or \"map\" to view the map, or \"status\" to view a list of the lands and their troop counts.");
                 continue;
             }
             if(input.equals("done")){
-                return null;
+                return null; // NULL is the signal to end a turn
             }
             if(input.equals("map")){
                 Game.printGivenGame(board);
@@ -111,12 +114,15 @@ public class SmartHuman extends Player{
     public Move move(Board board){
         while(true){
             
-            System.out.print("What would you like to do? ");
+            System.out.println("You can type \"help\" if you need to see the commands again.");
+            System.out.print("\nWhat would you like to do? ");
             String input = scanner.nextLine().toLowerCase();
             if(input.equals("help")){
+                System.out.println("\n\n\nHELP:");
                 System.out.println("You can type your command as 2 names of lands followed by a number, with each seperated by spacebar, to issue a command.");
                 System.out.println("The command has to be a legal movement of troops from one of your lands, to one of its neighbours.");
                 System.out.println("Example: \"Germany Poland 3\" (without the brackets) to move 3 troops from Germany to Poland");
+                System.out.println("You can make at most 1 movement in each turn, after all your attacks.");
                 System.out.println("\nYou can also type \"done\" to end your turn, or \"map\" to view the map, or \"status\" to view a list of the lands and their troop counts.");
                 continue;
             }
@@ -223,16 +229,28 @@ public class SmartHuman extends Player{
     public Reinforcement reinforce(Board board, int reinforceRemaining) {
         ArrayList<Land> ownedLands = board.getControlledLands(this);
         while(true){
-            for (int i = 0; i < ownedLands.size(); i++) {
-                System.out.println(ownedLands.get(i).getName() + ": Current count: " + ownedLands.get(i).getTroopCount());
-            }
-            System.out.println("You have: " + reinforceRemaining + " reinforcements remaining. Where do you want to place them?");
-            System.out.println("\nYou can also type \"map\" to view the map, or \"status\" to view a list of the lands and their troop counts.");
-
-            System.out.print("\nType the name of a land you own: ");
+            System.out.println("\nYou have: " + reinforceRemaining + " reinforcements remaining. Where do you want to place them?");
+            System.out.println("\nYou can type \"help\" if you need to view all commands.");
+            System.out.print("Type the name of a land you own: ");
             // Get an input from the player
             String input = scanner.nextLine().toLowerCase();
-            
+            if(input.equals("list")){
+                for (int i = 0; i < ownedLands.size(); i++) {
+                    System.out.println(ownedLands.get(i).getName() + ": Current count: " + ownedLands.get(i).getTroopCount());
+                }
+                continue;
+            }
+            if(input.equals("help")){
+                System.out.println("\n\n\nHELP:");
+                System.out.println("In your reinforcement phase, you can place between 1 and up to the remaining count on any land you own.");
+                System.out.println("Placing fewer than the remaining amount will then allow you to select another land you own, and choose again between 1 and the remaining amount.");
+                System.out.println("The reinforcement phase ends when you have used all your reinforcements.");
+                System.out.println("\nTo place reinforcements, start by entering the name of the land you want to place some in.");
+                System.out.println("Next you are asked to type the amount you want to place in that land.");
+                System.out.println("\nYou can also type \"map\" to view the map, or \"status\" to view a list of the lands and their troop counts.");
+                System.out.println("Typing \"list\" will just list your lands and their count.");
+                continue;
+            }
             if(input.equals("map")){
                 Game.printGivenGame(board);
                 continue;
@@ -270,6 +288,4 @@ public class SmartHuman extends Player{
             }
         }
     }
-
-    
 }

@@ -1,14 +1,11 @@
 package players;
-/*
- *  An example AI.
- *  This AI is what is actually instantiated in the game.
- */
 
 import containers.*;
 import containers.TurnPlan.Action;
 import game.*;
 import java.util.*;
 
+// SSAI stands for "Surface Scan AI", because it only looks at how the board is right now, and then finds an oppertunity.
 public class SSAI extends AI{
 
     private int depth;
