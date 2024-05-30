@@ -122,9 +122,10 @@ public class MrAI extends AI{
             }
         }
         
-        value += board.getControlledLandsCount(this); // + the number of lands controlled
-        value -= board.getControlledBorderLands(this).size(); // - the number of borders
-        value += defendedBorderLands * 2;   // + 1 for each border than has more than 1 troop but less than 4 troops
+        value += board.getControlledLandsCount(this) * 2.5; // + the number of lands controlled
+        value -= board.getControlledBorderLands(this).size() * 1.5; // - the number of borders
+        value += defendedBorderLands * 2;   // + for each border than has more than 1 troop but less than 4 troops
+        value += board.countReinforcements(this) * 2;   // + 2 for each reinfocement the AI can get from this board
 
         return value;
     }
@@ -140,7 +141,7 @@ public class MrAI extends AI{
      */
     private boolean threshold(int value, Board board){
         // if the best value is larger than the value of the Board as it currently is, slight penalty to the current Board ot encourage aggresion
-        return value >= (evaluateBoard(board) * 0.9);    
+        return value >= (evaluateBoard(board) * 0.75);    
     }
 
     /**
