@@ -108,7 +108,7 @@ public class Game {
                     System.out.println("The specified attack could not be executed. Try again.");
                 }
                 System.out.println("What would you like to do now?");
-                attemptAttack = player.move(board);
+                attemptAttack = player.attack(board);
             }
             System.out.println("\nMovement phase begins. You have at most 1 move to make");
             Move attemptMove = player.move(board);
