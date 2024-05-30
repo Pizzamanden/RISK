@@ -204,7 +204,7 @@ public class Board {
 
     public boolean isMoveLegal(Move move){
         // Does the specified move use a legal number of troops?
-        if(move.count < 1 || 3 < move.count){
+        if(move.count < 1){
             return false;
         }
         // Is there enough troops in the from-land to move any from it? 1 must remain on the land
@@ -215,23 +215,18 @@ public class Board {
         if(move.from.getController() != move.player){
             return false;
         }
+        // Target must be neighbour of source
+        if(!move.from.hasNeighboringLand(move.to)){
+            return false;
+        }
         
         // Does the current player control the target?
-        if(move.player == move.to.getController()){
-            // This is a movement
-            // Are the two specified lands connected?
-            if(!move.from.isConnectedTo(move.to)){
-                return false;
-            }
-            // This movement is legal
-        } else {
+        if(!(move.player == move.to.getController())){
             // This is an attack
-            // Are the two lands neighbours?
-            if(!move.from.hasNeighboringLand(move.to)){
+            if(move.count > 3){
                 return false;
             }
-            // This attack is legal
-        }
+        } // At this point, all movements are legal
 
         return true;
     }
