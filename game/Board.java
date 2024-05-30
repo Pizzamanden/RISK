@@ -201,13 +201,16 @@ public class Board {
 
 // - - - - - - - - - - - - - - - - - - Movements and attacks 
 
-
+    /*
+     *  Method for determining if a move is legal
+     *  All moves must abide by this function, as only if they pass this can they be used in the actual game.
+     */
     public boolean isMoveLegal(Move move){
-        // Does the specified move use a legal number of troops?
+        // Does the specified move use at least 1 troops?
         if(move.count < 1){
             return false;
         }
-        // Is there enough troops in the from-land to move any from it? 1 must remain on the land
+        // Is there enough troops in the from-land to move any from it? At least 1 must remain on the land
         if(move.from.getTroopCount()-1 < move.count){
             return false;
         }
@@ -215,27 +218,19 @@ public class Board {
         if(move.from.getController() != move.player){
             return false;
         }
+        // Are the two lands neighbours?
+        if(!move.from.hasNeighboringLand(move.to)){
+            return false;
+        }
         
         // Does the current player control the target?
-        if(move.player == move.to.getController()){
-            // This is a movement
-            // Are the two specified lands connected?
-            if(!move.from.hasNeighboringLand(move.to)){
-                return false;
-            }
-            // This movement is legal
-        } else {
+        if(move.player != move.to.getController()){
             // This is an attack
             // We can attack with at most 2 troops
             if(3 < move.count){
                 return false;
             }
-            // Are the two lands neighbours?
-            if(!move.from.hasNeighboringLand(move.to)){
-                return false;
-            }
-            // This attack is legal
-        }
+        } // If it is a move, it is legal no matter the upper limit of troops
 
         return true;
     }
@@ -247,7 +242,6 @@ public class Board {
     /*
      *  Method for checking legibility of a player placing reinforcements where they want to
      *  Returns false if the reinforcement is not legal
-     *  TODO decide if the logic for all reinforcement checking should occur here, or if error-messages should be tailored, and thus be in the game logic
      */
     public boolean canReinforce(Player player, Reinforcement reinforcement, int remainingReinforcements){
         // Reinforcement amount must be larger than 0 and less than or equal to remaining reinforcements
@@ -267,16 +261,6 @@ public class Board {
     }
 
 // - - - - - - - - - - - - - - - - - - Actions that can be performed
-
-    public ArrayList<Land> getListOfActionableLands(Player player){
-        ArrayList<Land> candidateLands = new ArrayList<>();
-        for (Land land : this.lands) {
-            if(land.getController() == player && land.getTroopCount() > 1){
-                candidateLands.add(land);
-            }
-        }
-        return candidateLands;
-    }
     
     /*
      *  With a move and a specific outcome, return a copy of the board where this has happened
