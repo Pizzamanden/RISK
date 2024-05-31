@@ -9,7 +9,7 @@ public class Game {
 
     private Scanner scanner = new Scanner(System.in);
     private ArrayList<Player> players;
-    private int depth = 5;  // used to define how far ahead the AI's think
+    private int depth = 20;  // used to define how far ahead the AI's think
 
     // By using the one random number, using it again should make the same board. The dice rolls do not use the seed
     // For any combination of seed, playerCount and board size, a specific board should be generated
