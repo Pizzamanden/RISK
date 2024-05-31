@@ -178,10 +178,16 @@ public class SSAI extends AI{
 
 
         // Now we go in the other order
+        float highestProb = 0;
+
+
+        System.out.println("Targets : " + targetList.size());
         for (Land target : targetList) {
+            System.out.println("\nTargeting : " + target.getName());
             int defenderCount = target.getTroopCount();
             // Now we can evaluate if attacking from the friendly land into this one is a good idea
             ArrayList<Land> sourceList = target.getNeighbours(this, true); // Get all neighbours we own
+            System.out.println("Source list : " + sourceList.size());
             sourceList.sort((l1, l2) -> Integer.compare(l2.getTroopCount(), l1.getTroopCount())); // Sort it descending
             // For each of these source lands, we can sum up how effective they can attack
             // This is done in rounds. Each of these lands make their strongest available attack. We then sum up the count of each of these attacks using a dictionary
@@ -223,44 +229,60 @@ public class SSAI extends AI{
             */
             HashMap<Integer, ArrayList<ArrayList<Outcome>>> map = new HashMap<>();
 
+            System.out.println("Largest troop count : " + sourceList.get(0).getName() + " with " + sourceList.get(0).getTroopCount() + " troops.");
             while(sourceList.get(0).getTroopCount() > 3){ // We continue calculating as long as we can attack with 3 troops
-                // Get a list of the current keys we are working with
-                Set<Integer> keySet = map.keySet();
+                System.out.println("Simulate attack from " + sourceList.get(0).getName());
                 // We now specify how low we go
                 // If we had 8 as the smallest, we now need to go to 6
-                int smallestKey = Math.max(0, Math.min(defenderCount, getSmallest(keySet)-2)); // The max key is always defenderCount
+                int smallestKey = Math.max(0, Math.min(defenderCount, getSmallest(map.keySet()))-2); // The max key is always defenderCount
+                System.out.println("Smallest key: " + smallestKey);
 
-                // We also need a new map, such that we look in the old, and make into the new
+                // We also need a new map, such that we look in the old, and make it into the new
                 HashMap<Integer, ArrayList<ArrayList<Outcome>>> tempMap = new HashMap<>();
                 
-                // Use attTwo outcome
+                // For each already used key in the old map,
+                System.out.println("Starting for-loops");
                 for (int i = defenderCount; i > Math.max(0, smallestKey); i--) { // It goes backwards, starts from the highest key
+                    System.out.println("Looking at key " + i);
                     // Make the list on this key
                     tempMap.put(i, new ArrayList<>());
 
                     // Also check if the previous map had this index initialized
                     if(map.get(i) == null){
+                        System.out.println("Init key " + i);
                         // Initialize it, and add an empty outcome list
                         map.put(i, new ArrayList<>());
                         map.get(i).add(new ArrayList<>());
                     }
-                    
+                    System.out.println("Setting key + 0 : " + i);
                     addToNewMap(map, tempMap, i, 0);
                     
-                    if(i + 1 <= defenderCount){
-                        addToNewMap(map, tempMap, i+1, 1);
+                    if((i + 1) <= defenderCount){
+                        System.out.println("Setting key + 1 : " + (i+1));
+                        addToNewMap(map, tempMap, i, 1);
                     }
 
-                    if(i + 2 <= defenderCount){
-                        addToNewMap(map, tempMap, i+2, 2);
+                    if((i + 2) <= defenderCount){
+                        System.out.println("Setting key + 2 : " + (i+2));
+                        addToNewMap(map, tempMap, i, 2);
                     }
                     
                 }
 
+                if(map.get(0) == null){
+                    System.out.println("Init key " + 0);
+                    // Initialize it, and add an empty outcome list
+                    map.put(0, new ArrayList<>());
+                    map.get(0).add(new ArrayList<>());
+                }
                 // The remaining defender count of 0 could be reached by either fighting 2 defenders and killing both, or fighting 1 and killing them.
                 if(smallestKey == 0){
+                    tempMap.put(0, new ArrayList<>());
+                    System.out.println("Small key = 0 scenario");
                     // Here we use attTwo and attOne outcomes
-                    addToNewMap(map, tempMap, 0, 2);
+                    if(defenderCount > 1){
+                        addToNewMap(map, tempMap, 0, 2);
+                    }
                     // and a manual block, because of
                     for (ArrayList<Outcome> list : map.get(1)) {
                         ArrayList<Outcome> newKeyList = new ArrayList<>();
@@ -274,10 +296,15 @@ public class SSAI extends AI{
                     }
 
                 }
+                for (Map.Entry<Integer, ArrayList<ArrayList<Outcome>>> te : map.entrySet()) {
+                    System.out.println("There exists " + te.getValue().size() + " versions that leads to the remainder of " + te.getKey());
+                }
                 // Pretend we lost 2 troops here
                 sourceList.get(0).changeTroopCount(-2);
                 // Re-sort the list
                 sourceList.sort((l1, l2) -> Integer.compare(l2.getTroopCount(), l1.getTroopCount()));
+                // also update our map
+                map = tempMap;
             }
 
             // So, now we can do something with this target?
@@ -306,6 +333,7 @@ public class SSAI extends AI{
     }
 
     private void addToNewMap(HashMap<Integer, ArrayList<ArrayList<Outcome>>> oldMap, HashMap<Integer, ArrayList<ArrayList<Outcome>>> newMap, int key, int deadDefs){
+        System.out.println("Called with key : " + key + " and dead defs : " + deadDefs);
         for (ArrayList<Outcome> list : oldMap.get(key+deadDefs)) {
             ArrayList<Outcome> newKeyList = new ArrayList<>();
             for (Outcome outcome : list) {
@@ -314,6 +342,7 @@ public class SSAI extends AI{
             // Now add the new one
             newKeyList.add(attTwo.get(deadDefs)); // 0 is 2 dead defs, 1 is 1 dead def, 2 is 0 dead defs.
             // We always add to i, since this is where the outcomes on this new list will take us
+            System.out.println("Appended and added");
             newMap.get(key).add(newKeyList);
         }
     }

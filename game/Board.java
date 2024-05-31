@@ -556,6 +556,7 @@ public class Board {
                 l.getController(),  // shallow copy of the Player.
                 new Coordinate(l.coords.x, l.coords.y)
             );
+            landCopy.changeTroopCount(l.getTroopCount()-1);
             copy.lands.add(landCopy);
         }
 
