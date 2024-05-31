@@ -6,16 +6,20 @@ import players.*;
 
 public class Land {
     
-    public int landID;
-    private ArrayList<Land> borderingLand;
-    private Player controller;
-    private int troopCount;
-    private String name;
+    public int landID;  // id of the this Land
+    private ArrayList<Land> borderingLand;  // Lands this land has borders to 
+    private Player controller;  // the Player than controlles this Land
+    private int troopCount; // the number of troops on this Land
+    private String name;    // the nameo of this Land
 
     // Coordinates for drawing the board, and for deciding neighbours
     public Coordinate coords;
 
 
+    /**
+     * Constructor for a new Land.
+     * All paramteres are explained above
+     */
     public Land(String name, int landID, Player controller, Coordinate coords){
         this.borderingLand = new ArrayList<>();
         this.name = name;
@@ -25,17 +29,20 @@ public class Land {
         this.landID = landID;
     }
 
-
-    /*
-     *  Determines whether this land has the specified land as a neighbour
-     *  Uses a simple loop with a short-circuit to check
+    /**
+     * Determines whether this land has the specified land as a neighbour
+     * @param neighbour - the Land we wish to check if it is a neighbour to this Land.
+     * @return true if the given Land is a neighbour to this Land
      */
     public boolean hasNeighboringLand(Land neighbour){
         return borderingLand.contains(neighbour);
     }
 
-    /*
-     *  With a list of lands as input, decide if a land by the given name exists in that list
+    /**
+     * With a list of lands as input, decide if a land by the given name exists in that list
+     * @param lands - the list of Lands to check in
+     * @param name - the anme of the Land to find
+     * @return
      */
     public static Land getLandFromListByName(ArrayList<Land> lands, String name){
         Land land = null;
@@ -51,89 +58,11 @@ public class Land {
     }
 
 
-    /*
-     *  Implements a breadth-first-search to return a hashset of all lands which are connected to this land
-     *  Can terminate early on a successful find
-     *  Does not return the set of connected land, use connectedLand().contains() if both check and set is needed
-     *  If this land and the parameter does not share owner, this will always be false
-     */
-    public boolean isConnectedTo(Land dest){
-        boolean isConnectedTo = false;
-        ArrayList<Land> visited = new ArrayList<>();
-        Queue<Land> q = new LinkedList<>();
-        // Add the starting land to queue and visited set
-        q.add(this);
-        visited.add(this);
-        // Go as long as the queue is not empty
-        while(!q.isEmpty() && !isConnectedTo){
-            // Take the head of the queue. This land is always already marked as visited
-            Land currentLand = q.remove();
-            // Get all neighbours for this land
-            for (Land neighbour : currentLand.getNeighbours()) {
-                // If the neighbour has already been visited, disregard it
-                // If not, and it is owned by the same player as this land, add it to the queue and to the visited list
-                if(!visited.contains(neighbour) && neighbour.getController()==this.getController()){
-                    q.add(neighbour);
-                    visited.add(neighbour);
-                    if(neighbour == dest){
-                        isConnectedTo = true;
-                    }
-                }
-            }
-        }
-        return isConnectedTo;
-    }
-
-    /*
-     *  Implements a breadth-first-search to return a hashset of all lands which are connected to this land
-     *  Does not include this land in the list
-     */
-    public ArrayList<Land> getAllConnectedLand(){
-        ArrayList<Land> visited = new ArrayList<>();
-        Queue<Land> q = new LinkedList<>();
-        // Add the starting land to queue and visited set
-        q.add(this);
-        visited.add(this);
-        // Go as long as the queue is not empty
-        while(!q.isEmpty()){
-            // Take the head of the queue. This land is always already marked as visited
-            Land currentLand = q.remove();
-            // Get all neighbours for this land
-            for (Land neighbour : currentLand.getNeighbours()) {
-                // If the neighbour has already been visited, disregard it
-                // If not, and it is owned by the same player as this land, add it to the queue and to the visited list
-                if(!visited.contains(neighbour) && neighbour.getController()==this.getController()){
-                    q.add(neighbour);
-                    visited.add(neighbour);
-                }
-            }
-        }
-        // Now remove this land from the list of visited lands.
-        // This is only because of how the game works, which spares a lot of headache if we do not have the option of making loops of actions.
-        visited.remove(this);
-        return visited; // Return all seen lands
-    }
-
-    /*
-     *  Method for calculating all troops in a connected zone that can be moved or be used to attack
-     *  Supply parameter with null if there is no available instance of connected lands created, the method makes its own
-     *  Otherwise speed it up by providing one
-     */
-    public int getConnectedMoveableTroopCount(ArrayList<Land> connectedLands){
-        int count = this.troopCount-1;
-        if(connectedLands == null){
-            connectedLands = this.getAllConnectedLand();
-        }
-        for (Land land : connectedLands) {
-            count = count + (land.getTroopCount() - 1);
-        }
-        return count;
-    }
-
-    /*
-     *  Returns a list of neighbours
-     *  The list itself is not the same reference, but the neighbours are the references used.
-     *  Works exactly as a copy of the list of neighbours. The lands are still their same references, its just this list not being the same list as the one in the class
+    /**
+     * Returns a list of all neighbours for this Land. 
+     * The list itself is not the same reference, but the neighbours are the references used.
+     * Works exactly as a copy of the list of neighbours. The lands are still their same references, its just this list not being the same list as the one in the class
+     * @return a list of neighbours for this Land
      */
     public ArrayList<Land> getNeighbours(){
         ArrayList<Land> list = new ArrayList<>();
@@ -143,10 +72,13 @@ public class Land {
         return list;
     }
 
-    /*
-     *  Returns a list of neighbours
-     *  The list itself is not the same reference, but the neighbours are the references used.
-     *  Works exactly as a copy of the list of neighbours. The lands are still their same references, its just this list not being the same list as the one in the class
+    /**
+     * Returns a list of either friendlt or hostile neighbours of this Land
+     * The list itself is not the same reference, but the neighbours are the references used.
+     * Works exactly as a copy of the list of neighbours. The lands are still their same references, its just this list not being the same list as the one in the class
+     * @param player - the Player
+     * @param ownedByThisPlayer - whether we want friendly or hostile neighbours
+     * @return a list of either friendlt or hostile neighbours of this Land
      */
     public ArrayList<Land> getNeighbours(Player player, Boolean ownedByThisPlayer){
         ArrayList<Land> list = new ArrayList<>();
@@ -162,19 +94,19 @@ public class Land {
         return list;
     }
 
-    public boolean isLandAttackTarget(Land target, Player attacker){
-        ArrayList<Land> neighbours = this.getNeighbours();
-        return (neighbours.contains(target) && target.getController() != attacker);
-    }
-
-    /*
-     *  Returns the controller of this land
+    /**
+     * 
+     * @return the Player in controll of this land
      */
     public Player getController(){
         return this.controller;
     }
 
 
+    /**
+     * checks if this Land has any hostile neighbour.
+     * @return true if this Land has hostile neighbours, otherwise false. 
+     */
     public boolean hasEnemyNeighbour(){
         boolean found = false;
         Iterator<Land> neighbourListIterable = borderingLand.iterator(); // Make iterator
@@ -186,36 +118,49 @@ public class Land {
         return found;
     }
 
-    /*
+
+    /**
      * Changes the troop count of this land by the specified amount
      * Positive number increases the troop count, whilst negative will decrease it
+     * @param change - the desired change to troop count
+     * @precondition - changeTroopCount does not check if the given change is legal or not. 
      */
     public void changeTroopCount(int change){
         this.troopCount = this.troopCount + change;
     }
 
+    /**
+     * Sets the Player that controls this Land to the given Player 
+     * @param newController - the Player that will not control this Land
+     */
     public void changeController(Player newController){
         this.controller = newController;
     }
 
+    /**
+     * Adds a neighbour to this Land
+     * @param neighbour - the neigubour to add
+     */
     public void addNeighbour(Land neighbour){
         borderingLand.add(neighbour);
     }
 
-
-    /*
-     * Returns the troop count of this land
+    /**
+     * @return the the troop count of this land
      */
     public int getTroopCount(){
         return this.troopCount;
     }
 
+    /**
+     * @return the name of this Land
+     */
     public String getName(){
         return this.name;
     }
 
 
-    /*
+    /**
      *  Land equality consists of:
      *  - Controller
      *  - Troop count
