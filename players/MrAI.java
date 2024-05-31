@@ -141,7 +141,7 @@ public class MrAI extends AI{
      */
     private boolean threshold(int value, Board board){
         // if the best value is larger than the value of the Board as it currently is, slight penalty to the current Board ot encourage aggresion
-        return value >= (evaluateBoard(board) * 0.75);    
+        return value >= (evaluateBoard(board) * 0.8);    
     }
 
     /**
@@ -293,7 +293,7 @@ public class MrAI extends AI{
         double currentLandRelativeThreat; // the relative theat the current Land is under
 
         if(borderLands.size() == 0){    // there are no border Lands. This player likely won the game
-            return board.getControlledLands(player).get(0); // returns any Land, doesn't matter, the turn just has to finish
+            return board.getControlledLands(player, true).get(0); // returns any Land, doesn't matter, the turn just has to finish
         }
 
         // for each border land, calculate the number of hostile troops bordering it
