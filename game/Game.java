@@ -42,7 +42,7 @@ public class Game {
                 currentPlayer++;
             } else if(setPlayer.equals("n")) { // This player should be AI
                 // Maybe here do more logic to choose AI type?
-                this.players.add(new MrAI(currentPlayer+1, depth));
+                this.players.add(new SSAI(currentPlayer+1, depth));
                 currentPlayer++;
             } else {    
                 // Input not allowed, loop again
