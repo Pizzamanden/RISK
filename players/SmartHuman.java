@@ -227,7 +227,7 @@ public class SmartHuman extends Player{
      */
     @Override
     public Reinforcement reinforce(Board board, int reinforceRemaining) {
-        ArrayList<Land> ownedLands = board.getControlledLands(this);
+        ArrayList<Land> ownedLands = board.getControlledLands(this, true);
         while(true){
             System.out.println("\nYou have: " + reinforceRemaining + " reinforcements remaining. Where do you want to place them?");
             System.out.println("\nYou can type \"help\" if you need to view all commands.");

@@ -107,6 +107,11 @@ public class Board {
 // - - - - - - - - - - - - - - - - - - Movements and attacks 
 
 
+    /**
+     * Checks if the given Move is a legal Move.
+     * @param move - the move the Players wishes to make
+     * @return true if the Move is legal, false otherwise.
+     */
     public boolean isMoveLegal(Move move){
         // Does the specified move use a legal number of troops?
         if(move.count < 1){
@@ -143,7 +148,6 @@ public class Board {
     /*
      *  Method for checking legibility of a player placing reinforcements where they want to
      *  Returns false if the reinforcement is not legal
-     *  TODO decide if the logic for all reinforcement checking should occur here, or if error-messages should be tailored, and thus be in the game logic
      */
     public boolean canReinforce(Player player, Reinforcement reinforcement, int remainingReinforcements){
         // Reinforcement amount must be larger than 0 and less than or equal to remaining reinforcements
@@ -155,54 +159,20 @@ public class Board {
     }
 
     /*
-     *  Sums up the total amount of reinforcements a specified player would gain, if they were to reinforce right now
+     *  Sums up the total amount of reinforcements a specified player would gain, 
+     * if they were to gain refinforcements on this board. 
      */
     public int countReinforcements(Player player){
         int count = 3;
         return Math.max(count, getControlledLandsCount(player)/landCountForReinforcement);
     }
 
-// - - - - - - - - - - - - - - - - - - Actions that can be performed
-
-    public ArrayList<Land> getListOfActionableLands(Player player){
-        ArrayList<Land> candidateLands = new ArrayList<>();
-        for (Land land : this.lands) {
-            if(land.getController() == player && land.getTroopCount() > 1){
-                candidateLands.add(land);
-            }
-        }
-        return candidateLands;
-    }
-    
-    /*
-     *  With a move and a specific outcome, return a copy of the board where this has happened
-     */
-    public Board applyOutcomeOnBoard(Move move, Outcome outcome){
-        Board newBoard = this.copy();
-        Land newAttLand = newBoard.lands.get(newBoard.lands.indexOf(move.from));
-        Land newDefLand = newBoard.lands.get(newBoard.lands.indexOf(move.to));
-        // Attacking land has lost as many troops as attackers have died
-        newAttLand.changeTroopCount(-outcome.attackersDying);
-        // Defender land has lost as many troops as defenders have died
-        newDefLand.changeTroopCount(-outcome.defendersDying);
-        // Did the land change hands?
-        // Get the land in the copy that matches the land in the move.to
-        if(newDefLand.getTroopCount() == 0){
-            newAttLand.changeTroopCount(-1); // Move the guy who captures
-            newDefLand.changeTroopCount(1); // He moves here
-            newDefLand.changeController(move.player); // Now owned by the attacker
-        }
-        // Return the copy with the change
-        return newBoard;
-    }
-
-
 // - - - - - - - - - - - - - - - - - - Lists of the board, and other information 
 
-
-
-    /*
-     *  Find a land by name from the list of all lands
+    /**
+     * Finds a land by name from the list of all lands
+     * @param name - the name of the Land
+     * @return the land object with the given name
      */
     public Land getLandByName(String name){
         Land foundLand = null;
@@ -214,22 +184,12 @@ public class Board {
         return foundLand;
     }
 
-    /*
-     *  A method which returns a list of all the lands the specified player controls
-     */
-    public ArrayList<Land> getControlledLands(Player player){
-        ArrayList<Land> contLands = new ArrayList<>();
-        for (Land land : this.lands) {
-            if(land.getController() == player){
-                contLands.add(land);
-            }
-        }
-        return contLands;
-    }
-
-    /*
-     *  A method which returns a list of all the lands the specified player controls
+    /**
+     * A method which returns a list of all the lands the specified player controls
      *  Accepts a given player, which can be used to specify if its lands controlled by this player, or NOT by this player
+     * @param player - the Player
+     * @param ownedByThisPlayer - whether the Lands we are looking for are controlled by this player or another
+     * @return a list of Lands that are either controlled by this player or not, depending on the boolean
      */
     public ArrayList<Land> getControlledLands(Player player, Boolean ownedByThisPlayer){
         ArrayList<Land> contLands = new ArrayList<>();
@@ -242,6 +202,15 @@ public class Board {
     }
 
     /**
+     * Returns the number of Lands controlled by the given Player
+     * @param player - the Player
+     * @return the number of Lands controlled by the given Player
+     */
+    public int getControlledLandsCount(Player player){
+        return getControlledLands(player, true).size();
+    }
+
+    /**
      * Returns an ArrayList of all Lands the given
      * Player controls that border hostile Lands.
      * @param player - the Player
@@ -250,7 +219,7 @@ public class Board {
     public ArrayList<Land> getControlledBorderLands(Player player){
         ArrayList<Land> borderLands = new ArrayList<>();   // all Lands that border a hostile Land
 
-        for(Land maybeBorderLand : getControlledLands(player)){  // goes through all Lands the Player controls
+        for(Land maybeBorderLand : getControlledLands(player, true)){  // goes through all Lands the Player controls
             if(maybeBorderLand.hasEnemyNeighbour()){
                 borderLands.add(maybeBorderLand);
             }
@@ -259,50 +228,21 @@ public class Board {
         return borderLands;
     }
 
-    /*
-     *  
-     */
-    public ArrayList<ArrayList<Land>> getConnectedLandZones(Player player){
-        ArrayList<Land> ownedLands = this.getControlledLands(player);
-        ArrayList<ArrayList<Land>> connectedZones = new ArrayList<>(); // Make the list of zones. A zone is a list, so this is a list of lists
-        for (Land land : ownedLands) {
-            // For each owned land, check if it is part of a zone we know of, or if it is part of a new zone
-            if(connectedZones.size() == 0){
-                // If there are no found zones yet, make the first
-                ArrayList<Land> newZone = land.getAllConnectedLand();
-                newZone.add(land); // getAllConnectedLand removes the original caller, so add it again
-                connectedZones.add(newZone);
-            } else {
-                for (ArrayList<Land> zone : connectedZones) { // Now check if this current land is part of any current zone
-                    if(!zone.contains(land)){
-                        // New zone found, add it
-                        ArrayList<Land> newZone = land.getAllConnectedLand();
-                        newZone.add(land); // getAllConnectedLand removes the original caller, so add it again
-                        connectedZones.add(newZone);
-                    }
-                }
-            }
-        }
-        return connectedZones;
-    }
 
-    /*
-     *  Counts the amount of land a player controls
-     */
-    public int getControlledLandsCount(Player player){
-        return getControlledLands(player).size();
-    }
-
-
-    /*
-     *  Return the size of the list of land
+    /**
+     * @return the size of the board
      */
     public int getBoardSize(){
         return lands.size();
     }
 
-    // STATIC METHOD FOR ROLLING A SET OF DICE
-    // Method to roll a specified number of dice
+    /**
+     * Rolls the specified number of dice by getting a random number from
+     * 1 to 6 (included) the specified number of times, and then returns a list 
+     * with the results in the order they are achieved. 
+     * @param count - the number of dice to roll
+     * @return a list of results from rolling the specified number of dice
+     */
     public static ArrayList<Integer> rollDice(int count) {
         Random rand = new Random();
         ArrayList<Integer> diceRolls = new ArrayList<>();
@@ -312,9 +252,10 @@ public class Board {
         return diceRolls;
     }
 
-    /*
-     *  This call is only actually done in the game.
-     *  But an AI would maybe like easy access to this when copying boards
+    /**
+     * Carries out the movement given by reducing troops 
+     * in one Land and increasing in another. 
+     * @param move - the movement to carry out
      */
     public void carryOutMovement(Move move){
         move.from.changeTroopCount(-move.count);
@@ -405,8 +346,8 @@ public class Board {
         return output;
     }
 
-    /*
-     *  Method for evaluating equality in boards
+    /**
+     * Method for evaluating equality in boards
      *  The factors to consider are:
      *  - Is it the same player's turn?
      *  - Are the same lands owned by the same players?
