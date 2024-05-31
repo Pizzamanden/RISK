@@ -61,17 +61,6 @@ public class SSAI extends AI{
     }
 
     /*
-     *  Implementation forced by AI class
-     */
-    @Override
-    public int evaluateBoard(Board board) {
-        int eval = 1;
-        // Time to actually make an AI
-        // Since this AI is aggressive, it wants to use AI tools, helper methods, but it needs to declare its own final evaluation.
-        return eval;
-    }
-
-    /*
      *  Method for returning a reinforcement for a given board, with some specified reinforcements left 
      *  For this AI, being asked to reinforce constitutes planning the entire turn
      *  Therefore, when this is called, the plan should be empty
@@ -178,7 +167,8 @@ public class SSAI extends AI{
 
 
         // Now we go in the other order
-        float highestProb = 0;
+        float highestProb = 60;
+        Land bestTarget = null;
 
 
         System.out.println("Targets : " + targetList.size());
@@ -308,28 +298,68 @@ public class SSAI extends AI{
             }
 
             // So, now we can do something with this target?
-            // Compute prob of 0 troops remaining
+            // print block
             System.out.println("\nAI is planning to attack " + target.getName() + ".");
             System.out.println("Target has " + target.getTroopCount() + " troops.");
-            System.out.println("Troop count remaining : Probability");
             for (Map.Entry<Integer, ArrayList<ArrayList<Outcome>>> remain : map.entrySet()) {
-                float prob = 0;
+                float prob = getProb(map, remain.getKey());
                 // Now we are looking at some remaining troop count. Time to print the prob of this happening
-                for (ArrayList<Outcome> outcomeTuple : remain.getValue()) {
-                    // Now we have each list of attack outcomes that could lead to this outcome. We now multiply all these together, and add them to prob
-                    float permProb = outcomeTuple.removeFirst().probability;
-                    for (Outcome outcome : outcomeTuple) {
-                        permProb = permProb * outcome.probability;
-                    }
-                    prob = prob + permProb;
-                }
+                
                 System.out.println("Troop count remaining : " + remain.getKey() + ", Probability : ");
                 Outcome.printProbAsPercentage(prob);
+                System.out.println("\n");
             }
+            
+            
+            // Compute prob of 0 troops remaining
+            float targetTakeProb = 0;
+            if(map.get(0) != null){
+                targetTakeProb = getProb(map, 0);
+                if(targetTakeProb > highestProb){
+                    // This is the new easiest land to take
+                    highestProb = targetTakeProb;
+                    bestTarget = target;
+                }
+            }
+
         }
-        // Nonsense returns, no attacks or moves
+
+        // Now we commit 1 attack against the target
+        if(bestTarget != null){
+            // Find one neighbour with enough troops
+            Land sourceLand = null;
+            for (Land possibleSource : bestTarget.getNeighbours(this, true)) {
+                if(possibleSource.getTroopCount() > 3){
+                    sourceLand = possibleSource;
+                }
+            }
+            // Since we planned this attack, there does exists such a neighbour
+            // Get the correct land from the real board
+            
+            sourceLand = board.getLandByName(sourceLand.getName());
+            // Add this attack to the plan
+    
+            cTurnPlan.addAction(board, sourceLand);
+        } else {
+            cTurnPlan.addAction(board, null);
+        }
+
+
         cTurnPlan.addAction(board, null);
-        cTurnPlan.addAction(board, null);
+    }
+
+
+    private float getProb(HashMap<Integer, ArrayList<ArrayList<Outcome>>> map, int key){
+        float prob = 0;
+        for (ArrayList<Outcome> outcomeTuple : map.get(key)) {
+            // Now we have each list of attack outcomes that could lead to this outcome. We now multiply all these together, and add them to prob
+            float permProb = outcomeTuple.remove(0).probability;
+            for (Outcome outcome : outcomeTuple) {
+                permProb = permProb * outcome.probability;
+            }
+            prob = prob + permProb;
+        }
+        return prob;
     }
 
     private void addToNewMap(HashMap<Integer, ArrayList<ArrayList<Outcome>>> oldMap, HashMap<Integer, ArrayList<ArrayList<Outcome>>> newMap, int key, int deadDefs){
@@ -364,56 +394,3 @@ public class SSAI extends AI{
     }
     
 }
-
-
-/*
-
-
-// Add this key, but where 0 defenders died
-                    for (ArrayList<Outcome> list : map.get(i)) {
-                        ArrayList<Outcome> newKeyList = new ArrayList<>();
-                        for (Outcome outcome : list) {
-                            newKeyList.add(outcome);
-                        }
-                        // Now add the new one
-                        newKeyList.add(attTwo.get(0));
-                        // We always add to i, since this is where the outcomes on this new list will take us
-                        tempMap.get(i).add(newKeyList);
-                    }
-
-                    if(i + 1 <= defenderCount){ // We can go one up, and not go beyond the highest key
-                        // Take from the one where 1 less defender have died, and add onto all of them the outcome where 1 dies
-                        for (ArrayList<Outcome> list : map.get(i+1)) {
-                            ArrayList<Outcome> newKeyList = new ArrayList<>();
-                            for (Outcome outcome : list) {
-                                newKeyList.add(outcome);
-                            }
-                            // Now add the new one
-                            newKeyList.add(attTwo.get(1));
-                            // We always add to i, since this is where the outcomes on this new list will take us
-                            tempMap.get(i).add(newKeyList);
-                        }
-                    }
-
-                    if(i + 2 <= defenderCount){ // We can go two up, and not go beyond the highest key
-                        // Take from the one where 2 less defender have died, and add onto all of them the outcome where 2 dies
-                        for (ArrayList<Outcome> list : map.get(i+2)) {
-                            ArrayList<Outcome> newKeyList = new ArrayList<>();
-                            for (Outcome outcome : list) {
-                                newKeyList.add(outcome);
-                            }
-                            // Now add the new one
-                            newKeyList.add(attTwo.get(2));
-                            // We always add to i, since this is where the outcomes on this new list will take us
-                            tempMap.get(i).add(newKeyList);
-                        }
-                    }
-
-
-
-
-
-
-
-
- */
