@@ -6,11 +6,11 @@ import players.*;
 
 public class Board {
     
-    private ArrayList<Land> lands;
-    private int playerTurn = 0; // The only call needed is, at the start of a turn to get the next player, and save that value, using the method for it
-    private int playerCount;
-    private ArrayList<Coordinate> centersInUse;
-    private int landCountForReinforcement; // the number of land required to gain an additional reinforcement
+    private ArrayList<Land> lands;  // all Lands on this board
+    private int playerTurn = 0; // Tracks whos turn it currently is
+    private int playerCount;    // the number of players in the game
+    private ArrayList<Coordinate> centersInUse; // used to keep track of where Lands are placed
+    private int landCountForReinforcement; // the number of Lands required to gain an additional reinforcement
 
     /*
      *  Constructor for a new, premade, board
@@ -38,42 +38,6 @@ public class Board {
         generateLand(new Coordinate(6, 6), 14-1, players.get(1), "n");
         generateLand(new Coordinate(10, 6), 15-1, players.get(1), "o");
         generateLand(new Coordinate(8, 3), 16-1, players.get(1), "p");
-
-        
-
-        // Commented out block of random land generation
-        // int landsToGenerate = 16;
-        // // First land is always a manual-added (0,0)
-        // Coordinate centerCoordinate = new Coordinate(0,0);
-        // lands.add(new Land("0", 14-landsToGenerate, (landsToGenerate-7 > 0 ? players.get(0) : players.get(1)), centerCoordinate));
-        // centersInUse.add(centerCoordinate);
-        // landsToGenerate--;
-        // Random rand = new Random();
-        // // Now the adding begins
-        // while (landsToGenerate > 0) {
-        //     boolean successGenerate = false;
-        //     while(!successGenerate){
-        //         // Pick a random land already made
-        //         Land randomLand = lands.get(rand.nextInt(lands.size()));
-        //         // Use the method for generating available candidates for centers
-        //         ArrayList<Coordinate> candidates = generatePossibleNeighboursFromCoord(randomLand.coords);
-        //         if(candidates.size() > 0){
-        //             // Pick one at random
-        //             Coordinate randomPicked = candidates.get(rand.nextInt(candidates.size()));
-        //             // Add it to the list of coordinates we have already used
-        //             centersInUse.add(randomPicked);
-        //             // Also generate the actual land, giving it these coordiantes
-        //             Land newlyGenerated = new Land(14-landsToGenerate + "", 14-landsToGenerate, (landsToGenerate-7 > 0 ? players.get(0) : players.get(1)), randomPicked);
-        //             // Generate its neighbours while we have it
-        //             setNeighboursOfLand(newlyGenerated);
-        //             // Add this one after generating its neighbours (important order, do not change, see method setNeighboursOfLand)
-        //             lands.add(newlyGenerated);
-        //             successGenerate = true; // We found and chose a candidate
-        //         } // If there are no candidates, we could not generate any candidates from this coordinate.
-        //     }
-        //     // This land is done, off to the next one
-        //     landsToGenerate--;
-        // }
     }
 
     /*
@@ -94,65 +58,6 @@ public class Board {
         setNeighboursOfLand(newlyGenerated);
         // Add this one after generating its neighbours (important order, do not change, see method setNeighboursOfLand)
         lands.add(newlyGenerated);
-    }
-
-
-    private ArrayList<Coordinate> generatePossibleNeighboursFromCoord(Coordinate coord){
-        ArrayList<Coordinate> candidates = new ArrayList<>();
-        // See if either its center plus 3 or minus 3 in all combinations is in use
-        // This is done by checking that no center lies 2 or less away in any coordinate
-        // The large offset is used 4 times. X = -3, X = +3, Y = -3, Y = +3
-        // The small offset is used 6 times. For both coordinates: -1, 0, +1
-        // The idea here is that a coordinate set is used twice.
-        // So we can use (-3,-1) in one round, but also (-1,-3).
-        for (int large = -3; large < 4; large=large+6) { // This runs twice
-            for (int small = -1; small < 2; small++) { // This runs 3 times
-                // Now check (small, large) and (large, small), and add them
-                Coordinate toCheck = new Coordinate(coord.x+large, coord.y+small);
-                if(isCoordinateAvailable(toCheck)){ // Checking (large, small)
-                    candidates.add(toCheck);
-                }
-                toCheck = new Coordinate(coord.x+small, coord.y+large);
-                if(isCoordinateAvailable(toCheck)){ // Checking (small, large)
-                    candidates.add(toCheck);
-                }
-            }
-        }
-        return candidates;
-    }
-
-    /*
-     *  Checks if a that using this coordinate would cause collision
-     *  Returns true if this coordinate can be used with no conflict
-     */
-    private boolean isCoordinateAvailable(Coordinate toCheck){
-        boolean isAvailable = true;
-        Iterator<Coordinate> coordIte = centersInUse.iterator(); // Make iterator
-        while(coordIte.hasNext() && isAvailable){ // Run while we have not failed, and have more to check
-            Coordinate currentToCheck = coordIte.next();
-            boolean xConflict = false;
-            boolean yConflict = false;
-            // If this has its center in any of the 16 coordinates around the one we are checking, it fails.
-            // What is being tested is 4 things. Does it lie further away by 3 or more on the x-coordinate, plus and minus, and then the same on the y-coordinate.
-            // If the coordinate is not either on the outer side of any of these boundaries, that causes a conflict on that axis
-            
-            // Fx if currentToCheck.x > tocheck.x - 2, that means it lies on the right side of this left-side boundary.
-            // This is only a problem if it does not then lie on the right of the right boundary.
-
-            // Using logic, it can be determined that there needs to be both a conflict in the x and y coordinates.
-            // If it has the same x-coordinate, that can be allowed, if the y-coordinate does not come anywhere near.
-            if(!(currentToCheck.x < toCheck.x-2 || currentToCheck.x > toCheck.x+2)){
-                xConflict = true;
-            }
-            if(!(currentToCheck.y < toCheck.y-2 || currentToCheck.y > toCheck.y+2)){
-                yConflict = true;
-            }
-            if(xConflict && yConflict){
-                // Both coordinates had a conflict, the coordinate we are checking is not available
-                isAvailable = false; 
-            }
-        }
-        return isAvailable;
     }
 
     /*
