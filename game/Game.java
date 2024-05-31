@@ -21,7 +21,7 @@ public class Game {
      */
     public Game(){
         this.players = new ArrayList<>();
-        ProbTable.getOutcomes(1, 1);
+        ProbTable.getOutcomes(1, 1); // Just run this real quick here, so that it is done
         newGame();
     }
 
@@ -41,7 +41,6 @@ public class Game {
                 this.players.add(new SmartHuman(currentPlayer+1));
                 currentPlayer++;
             } else if(setPlayer.equals("n")) { // This player should be AI
-                // Maybe here do more logic to choose AI type?
                 this.players.add(new SSAI(currentPlayer+1, depth));
                 currentPlayer++;
             } else {    

@@ -2,6 +2,7 @@ package players;
 /*
  *  This class is a container for shared AI methods. Fx if all AI wants to figure something out, or uses helper methods, this is where they can be defined.
  *  They can also be overridden later, if need be.
+ *  The game can also ask if a player is a subclass of AI
  */
 
 import containers.*;
