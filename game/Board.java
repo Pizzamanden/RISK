@@ -21,23 +21,24 @@ public class Board {
         this.centersInUse = new ArrayList<>();
         this.landCountForReinforcement = landCountForReinforcement;
         
-        generateLand(new Coordinate(2, 13), 1-1, players.get(0), "a");
-        generateLand(new Coordinate(5, 13), 2-1, players.get(0), "b");
-        generateLand(new Coordinate(8, 15), 3-1, players.get(0), "c");
-        generateLand(new Coordinate(11, 14), 4-1, players.get(0), "d");
-        generateLand(new Coordinate(8, 12), 5-1, players.get(0), "e");
-        generateLand(new Coordinate(0, 10), 6-1, players.get(0), "f");
-        generateLand(new Coordinate(3, 10), 7-1, players.get(0), "g");
-        generateLand(new Coordinate(0, 7), 8-1, players.get(0), "h");
+        // ID is written as number - 1, since this was translated from an image.
+        generateLand(new Coordinate(2, 13), 1-1, players.get(0), "America");
+        generateLand(new Coordinate(5, 13), 2-1, players.get(0), "Belgium");
+        generateLand(new Coordinate(8, 15), 3-1, players.get(0), "Cambodia");
+        generateLand(new Coordinate(11, 14), 4-1, players.get(0), "Denmark");
+        generateLand(new Coordinate(8, 12), 5-1, players.get(0), "Estonia");
+        generateLand(new Coordinate(0, 10), 6-1, players.get(0), "Finland");
+        generateLand(new Coordinate(3, 10), 7-1, players.get(0), "Germany");
+        generateLand(new Coordinate(0, 7), 8-1, players.get(0), "Haiti");
 
-        generateLand(new Coordinate(3, 7), 9-1, players.get(1), "i");
-        generateLand(new Coordinate(3, 4), 10-1, players.get(1), "j");
-        generateLand(new Coordinate(6, 9), 11-1, players.get(1), "k");
-        generateLand(new Coordinate(9, 9), 12-1, players.get(1), "l");
-        generateLand(new Coordinate(12, 9), 13-1, players.get(1), "m");
-        generateLand(new Coordinate(6, 6), 14-1, players.get(1), "n");
-        generateLand(new Coordinate(10, 6), 15-1, players.get(1), "o");
-        generateLand(new Coordinate(8, 3), 16-1, players.get(1), "p");
+        generateLand(new Coordinate(3, 7), 9-1, players.get(1), "Ireland");
+        generateLand(new Coordinate(3, 4), 10-1, players.get(1), "Japan");
+        generateLand(new Coordinate(6, 9), 11-1, players.get(1), "Kenya");
+        generateLand(new Coordinate(9, 9), 12-1, players.get(1), "Libya");
+        generateLand(new Coordinate(12, 9), 13-1, players.get(1), "Malta");
+        generateLand(new Coordinate(6, 6), 14-1, players.get(1), "Netherlands");
+        generateLand(new Coordinate(10, 6), 15-1, players.get(1), "Oman");
+        generateLand(new Coordinate(8, 3), 16-1, players.get(1), "Poland");
     }
 
     /*
@@ -306,35 +307,7 @@ public class Board {
                     // Which, translated to an easier approach, we can flip the number in the coordinates by just subtracting the offset coordinate from the size of the box
                     // If the actual coordinate is -3, with the offset of 4, that means the lowest number was -3.
                     // That gives a distance of 0. Since we are using the box, we need to subtract one, as we added 1 when we made it, to have room for the actual squares.
-                    char toSet = ' ';
-                    toSet = (char) (land.landID+97);
-                    // Logic below for setting each one of the 9 tiles a land owns
-                    // if(i == 0 && j == 0){
-                    //     // Middle
-                    //     toSet = (char) (land.landID+97);
-                    // } else if(i == 0){
-                    //     // Right and left middle
-                    //     toSet = '|';
-                    // } else if(j == 0){
-                    //     // Bottom and top middle
-                    //     toSet = '-';
-                    // } else if(i == -1 && j == -1){
-                    //     // Top left
-                    //     // toSet = '\\';
-                    //     toSet = '+';
-                    // } else if(i == 1 && j == -1){
-                    //     // Bottom left
-                    //     // toSet = '/';
-                    //     toSet = '+';
-                    // } else if(i == -1 && j == 1){
-                    //     // Top right
-                    //     // toSet = '/';
-                    //     toSet = '+';
-                    // } else if(i == 1 && j == 1){
-                    //     // Bottom right
-                    //     // toSet = '\\';
-                    //     toSet = '+';
-                    // }
+                    char toSet = (char) (land.landID+97);
                     box[drawBoxHeight-(land.coords.y+offsetY+i)-1][land.coords.x+offsetX+j] = toSet;
                 } 
             }
