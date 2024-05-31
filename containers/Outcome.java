@@ -23,7 +23,7 @@ public class Outcome{
 
     /*
      *  Compares if two outcomes are equal
-     *  All the values must just be equal
+     *  It just checks for equality between class attributes
      */
     public boolean equals(Object other){
         if(other == null)
