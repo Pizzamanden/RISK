@@ -1,5 +1,6 @@
 package containers;
 
+
 public class Outcome{
     public int attackersDying;
     public int defendersDying;
@@ -15,4 +16,23 @@ public class Outcome{
         System.out.print(String.format("%.0f%%", probability*100));
     }
 
+    public static void printProbAsPercentage(float prob){
+        System.out.print(String.format("%.0f%%", prob*100));
+    }
+
+
+    /*
+     *  Compares if two outcomes are equal
+     *  All the values must just be equal
+     */
+    public boolean equals(Object other){
+        if(other == null)
+			return false;
+		if(other == this)
+			return true;
+		if(!(other instanceof Outcome))
+			return false;
+		Outcome oOutcome = (Outcome) other;
+        return (oOutcome.attackersDying == this.attackersDying && oOutcome.defendersDying == this.defendersDying && oOutcome.probability == this.probability);
+    }
 }

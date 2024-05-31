@@ -96,14 +96,10 @@ public class ProbTable {
         }
         
         // Now calculate the outcomes
-        // System.out.println("\nFor " + attackerRollSet.get(0).size() + " attackers and " + defenderRollSet.get(0).size() + " defenders:");
-        // System.out.println("Total: " + total + "\n");
+        // Index 0 is 0 attacks won. Index 1 is 1 attack won. Index 2 is 2 attacks won
+        // Index 0 is 0 dead defenders. Index 1 is 1 dead defender. Index 2 is 2 dead defenders.
         for (int i = 0; i < scores.size(); i++) {
             outcomes.add(new Outcome((twoRolls ? 2 : 1)-i,i,(float) scores.get(i)/total));
-            // System.out.println(((twoRolls ? 2 : 1)-i) + " A : " + i + " D");
-            // System.out.println("Score: " + scores.get(i));
-            // System.ou<cat.println("Prob: " + (float) scores.get(i)/total + "\n");
-            // System.out.println(String.format("%.0f%%",(float) scores.get(i)/total*100));
         }
 
         return outcomes;
